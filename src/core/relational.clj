@@ -1,6 +1,7 @@
-(ns core.relational)
+(ns core.relational
+  (:require [clojure.repl :refer :all]))
 
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
+; entry point for core.relational; loads other classes
+
+(load "relation")
+(load "operators")

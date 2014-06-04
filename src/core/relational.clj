@@ -4,4 +4,5 @@
 ; entry point for core.relational; loads other classes
 
 (load "relation")
+(load "tools")
 (load "operators")

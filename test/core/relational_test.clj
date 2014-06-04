@@ -1,7 +1,7 @@
 (ns core.relational-test
-  (:use clojure.test
-        core.relational))
+  (:require [clojure.test :refer :all]
+            [core.relational :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(load "relation_test")
+(load "tools_test")
+(load "operators_test")

@@ -13,4 +13,5 @@
     '[id name]
     #{ [1 \"Arthur\"] [2 \"Betty\"] })"
   [head body-tuples]
+  ; TODO check parameters
   (Relation. head body-tuples))

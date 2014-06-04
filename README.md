@@ -1,4 +1,13 @@
-core.relational
-===============
+# core.relational
 
-Relational language for Clojure based on Date's Tutorial D
+A Clojure library designed to ... well, that part is up to you.
+
+## Usage
+
+FIXME
+
+## License
+
+Copyright © 2014 FIXME
+
+Distributed under the Eclipse Public License, the same as Clojure.

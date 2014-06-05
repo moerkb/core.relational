@@ -14,4 +14,11 @@
             (project rel '[name])))
       (is (= (create-relation [] #{})
             (project rel [])))
-      (is (thrown? IllegalArgumentException (project rel '[foo]))))))
+      (is (thrown? IllegalArgumentException (project rel '[foo]))))
+    
+    (testing "Union"
+      (let [rel (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"]})
+            result (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})]
+        (is (= result (union rel (create-relation '[id name] #{[3 "Carl"]}))))
+        (is (= result (union rel (create-relation '[name id] #{["Carl" 3]}))))
+        (is (thrown? IllegalArgumentException (union rel (create-relation '[name] #{["Carl"]}))))))))

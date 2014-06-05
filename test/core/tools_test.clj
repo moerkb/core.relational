@@ -45,3 +45,26 @@
     (is (= 1 (index-of my-coll 'name)))
     (is (= 2 (index-of my-coll 'phone)))
     (is (nil? (index-of my-coll 'street)))))
+
+(deftest same-attr-order?-test
+  (let [rel1 (create-relation '[id name] #{})
+        rel2 (create-relation '[name id] #{})]
+    (is (false? (same-attr-order? rel1 rel2)))
+    (is (true? (same-attr-order? rel1 (create-relation '[id name] #{}))))
+    (is (true? (same-attr-order? 
+                 (create-relation [] #{})
+                 (create-relation [] #{}))))))
+
+(deftest sort-vec-test
+  (let [rel1 (create-relation '[id name phone] #{})
+        rel2 (create-relation '[name phone id] #{})
+        rel3 (create-relation '[name id] #{})
+        empty-rel (create-relation [] #{})]
+    (is (= [2 0 1] (sort-vec rel1 rel2)))
+    (is (= [0 1 2] (sort-vec rel1 rel1)))
+    (is (= [0 1 2] (sort-vec rel2 rel2)))
+    (is (= [] (sort-vec empty-rel empty-rel)))
+    (is (thrown? IllegalArgumentException (sort-vec rel1 empty-rel)))
+    (is (thrown? IllegalArgumentException (sort-vec empty-rel rel2)))
+    (is (thrown? IllegalArgumentException (sort-vec rel2 rel3)))
+    (is (thrown? IllegalArgumentException (sort-vec rel3 rel1)))))

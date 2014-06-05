@@ -1,0 +1,2 @@
+- empty intersect / not -> universal relation -> how to represent?
+- equality of different order: [id name] = [name id]

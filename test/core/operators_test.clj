@@ -18,7 +18,20 @@
     
     (testing "Union"
       (let [rel (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"]})
-            result (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})]
+            result (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})
+            empty-rel (create-relation [] #{})]
         (is (= result (union rel (create-relation '[id name] #{[3 "Carl"]}))))
         (is (= result (union rel (create-relation '[name id] #{["Carl" 3]}))))
+        (is (= result (union rel (create-relation '[name id] #{["Betty" 2] ["Carl" 3]}))))
+        (is (thrown? IllegalArgumentException (union result empty-rel)))
+        (is (thrown? IllegalArgumentException (union rel (create-relation '[name] #{["Carl"]}))))))
+    
+    (testing "Intersect"
+      (let [rel (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"]})
+            result (create-relation '[id name] #{[2 "Betty"]})
+            empty-rel (create-relation [] #{})]
+        (is (= result (intersect rel (create-relation '[id name] #{[3 "Carl"] [2 "Betty"]}))))
+        (is (= result (intersect rel (create-relation '[name id] #{["Carl" 3] ["Betty" 2]}))))
+        (is (= (create-relation '[id name] #{}) (intersect rel (create-relation '[name id] #{["Carl" 3]}))))
+        (is (thrown? IllegalArgumentException (intersect empty-rel result)))
         (is (thrown? IllegalArgumentException (union rel (create-relation '[name] #{["Carl"]}))))))))

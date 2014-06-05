@@ -80,5 +80,18 @@
       (create-relation (:head relation1) (clj-set/union (:body relation1) rel2-body))))
   
   (intersect [relation1 relation2]
-    ; TODO
-    relation1))
+    (when-not (same-type? relation1 relation2)
+      (throw (IllegalArgumentException. "The two relations have different types.")))
+    
+    (let [rel2-body (if (same-attr-order? relation1 relation2)
+                      ; same order: nothing todo
+                      (:body relation2)
+         
+                      ; different order: sort the second relation like the first one
+                      (set (let [sorter (sort-vec relation1 relation2)]
+                             (map (fn [tuple] 
+                                    (vec (map (fn [pos] 
+                                                (nth tuple pos)) 
+                                           sorter))) 
+                               (:body relation2)))))]
+      (create-relation (:head relation1) (clj-set/intersection (:body relation1) rel2-body)))))

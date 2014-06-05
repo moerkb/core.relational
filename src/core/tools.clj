@@ -8,13 +8,26 @@
     (sort (:head relation1))
     (sort (:head relation2))))
 
-(defn attr-exists?
+(defn attr-exist?
   "Checks if the attribute(s) exist in the relation."
   ([relation attribute & more]
     (and 
-      (attr-exists? relation attribute)
-      (apply attr-exists? relation more)))
+      (attr-exist? relation attribute)
+      (apply attr-exist? relation more)))
   ([relation attribute]
     (if (some #(= attribute %) (:head relation))
       true
       false)))
+
+(defn attr-not-exist?
+  "Checks if at least one of the attribute(s) does not exist in the relation."
+  [relation & attributes]
+  (not (apply attr-exist? relation attributes)))
+
+(defn index-of 
+  "Finds the position of the item in the collection. Nil if not in there."
+  [coll item]
+  (let [res (count (take-while (partial not= item) coll))]
+    (if (>= res (count coll))
+      nil
+      res)))

@@ -34,7 +34,7 @@
 ; implementation for Relation
 (extend-protocol RelationalOperators Relation
   (rename [relation attribute new-name]
-    (when (not-any? #(= attribute %) (:head relation))
+    (when (attr-not-exist? relation attribute)
       (throw (IllegalArgumentException. "Attribute does not exist in relation.")))
     (let [new-head (replace {attribute new-name} (:head relation))]
       (create-relation new-head (:body relation))))
@@ -44,8 +44,19 @@
     relation)
   
   (project [relation attributes]
-    ; TODO
-    relation)
+    (when (and
+            (not (empty? attributes))
+            (apply attr-not-exist? relation attributes))
+      (throw (IllegalArgumentException. "At least one of the attributes does not exist in relation.")))
+    
+    
+    (let [; find positions of attributes that shall be shown
+          positions (map #(index-of (:head relation) %) attributes)
+          ; "take" just these attributes
+          value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
+                              (:body relation)))
+          body (if (every? empty? value-tuples) #{} value-tuples)] 
+      (create-relation attributes body)))
   
   (join [relation1 relation2]
     ; TODO

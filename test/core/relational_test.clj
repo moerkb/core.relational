@@ -5,3 +5,4 @@
 (load "relation_test")
 (load "tools_test")
 (load "operators_test")
+(load "printer_test")

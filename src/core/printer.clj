@@ -7,10 +7,7 @@
   (let [head (:head relation)
         body (:body relation)
         ; find count for longest item in each column
-        my-count (fn [elem]
-                   (if (coll? elem)
-                     (count elem)
-                     (count (str elem))))
+        my-count (fn [elem] (count (str elem)))
         lengths (map #(+ 2 %) (apply map max (map #(map my-count %) 
                                              (conj body head))))
         nof-cols (count head)]

@@ -7,3 +7,4 @@
 (load "relation")
 (load "tools")
 (load "operators")
+(load "printer")

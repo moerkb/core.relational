@@ -4,9 +4,23 @@
   (testing "Relation creation"
     (let [head '[id name]
           body #{ [1 "Arthur"] [2 "Betty"] }]
-      (is (= 
-            (core.relational.Relation. head body)
-            (create-relation head body)))))
+      (is (= (core.relational.Relation. head body)
+            (create-relation head body)))
+      (is (= (core.relational.Relation. [] #{})
+            (create-relation [] #{})))))
+  
+  (testing "Relation head integrity"
+    (is (thrown? AssertionError (create-relation nil #{})))
+    (is (thrown? AssertionError (create-relation '(id name) #{})))
+    (is (thrown? AssertionError (create-relation '[id :name phone] #{})))
+    (is (thrown? AssertionError (create-relation '[id nil phone] #{}))))
+  
+  (testing "Relation body integrity"
+    (is (thrown? AssertionError (create-relation '[id name] nil)))
+    (is (thrown? AssertionError (create-relation '[id name] [])))
+    (is (thrown? AssertionError (create-relation '[id name] #{nil})))
+    (is (thrown? AssertionError (create-relation '[id name] #{'(1 "Arthur")})))
+    (is (thrown? AssertionError (create-relation '[id name] #{[1 nil]}))))
   
   (testing "Relation equality"
     (is (= (create-relation [] #{})

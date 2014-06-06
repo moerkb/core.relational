@@ -11,7 +11,23 @@
   Example:
   (relation
     '[id name]
-    #{ [1 \"Arthur\"] [2 \"Betty\"] })"
-  [head body-tuples]
-  ; TODO check parameters
-  (Relation. head body-tuples))
+    #{ [1 \"Arthur\"] [2 \"Betty\"] })
+
+  head: vector of symbols
+  body: set of vectors (tuples) that contain values (arbitrary datatype)
+        or empty set
+
+  Nowhere may nil appear! (this is not SQL)"
+  [head body]
+  {:pre [(and 
+           ; head is vector of symbols, not nil
+           (vector? head)
+           (every? symbol? head)
+           
+           ; body is empty set or set of vectors of values not nil
+           (set? body)
+           (or
+             (empty? body)
+             (every? vector? body))
+           (every? #(not-any? nil? %) body))]}
+  (Relation. head body))

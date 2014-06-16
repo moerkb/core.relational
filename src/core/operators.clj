@@ -93,8 +93,15 @@
        
        ; case 2: cross join
        ; case 3: intersect
+       (and 
+         (not (empty? common))
+         (empty? div-r1)
+         (empty? div-r2))
+       
+       (intersect relation1 relation2)
+       
        ; case 4: semijoin)
-       :else (throw (InternalError. "This should never fail (error code 1).")))))
+       :else (throw (InternalError. "This should never happen (error code 1).")))))
   
   (union [relation1 relation2]
     (when-not (same-type? relation1 relation2)

@@ -40,4 +40,8 @@
       (is (= (create-relation '[id name phone] #{[2 "Betty" "+49 641 12345"] [1 "Arthur" "+49 2931 12345"]})
             (join rel (create-relation '[id phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]}))))
       (is (= (create-relation '[id phone name] #{[2 "+49 641 12345" "Betty"] [1 "+49 2931 12345" "Arthur"]})
-            (join (create-relation '[id phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]}) rel))))))
+            (join (create-relation '[id phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]}) rel))))
+    
+    (testing "Join, case 3: intersect"
+      (is (= (create-relation '[id name] #{[2 "Betty"]})
+            (join rel (create-relation '[name id] #{["Betty" 2] ["Carl" 3]})))))))

@@ -63,11 +63,11 @@
           div-r1 (diverging-attr relation1 relation2)
           div-r2 (diverging-attr relation2 relation1)] 
       (cond 
-       ; case 1: natural join
+       ; case 1: natural join, case 4: semi join
        (and 
          (not (empty? common))
-         (not (empty? div-r1))
-         (not (empty? div-r2)))
+         (or (not (empty? div-r1))
+             (not (empty? div-r2))))
     
        (let [new-head (vec (concat (:head relation1) div-r2))
              common-positions-r1 (map #(index-of (:head relation1) %) common)
@@ -92,6 +92,15 @@
                         (:body relation1)))))
        
        ; case 2: cross join
+       (empty? common)
+       
+       (create-relation (vec (concat (:head relation1) (:head relation2)))
+         (set (map vec (apply concat (map (fn [tuple-r1]
+                                           (map (fn [tuple-r2]
+                                                 (concat tuple-r1 tuple-r2))
+                                            (:body relation2)))
+                                   (:body relation1))))))
+       
        ; case 3: intersect
        (and 
          (not (empty? common))
@@ -100,7 +109,7 @@
        
        (intersect relation1 relation2)
        
-       ; case 4: semijoin)
+       ; default case
        :else (throw (InternalError. "This should never happen (error code 1).")))))
   
   (union [relation1 relation2]

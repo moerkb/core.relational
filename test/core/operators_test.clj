@@ -42,6 +42,24 @@
       (is (= (create-relation '[id phone name] #{[2 "+49 641 12345" "Betty"] [1 "+49 2931 12345" "Arthur"]})
             (join (create-relation '[id phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]}) rel))))
     
+    (testing "Join, case 2: cross join"
+      (is (= (create-relation '[id name key phone] #{[1 "Arthur" "A's number" "+49 641 12345"]
+                                                     [1 "Arthur" "B's number" "+49 221 12345"]
+                                                     [2 "Betty" "A's number" "+49 641 12345"]
+                                                     [2 "Betty" "B's number" "+49 221 12345"]})
+            (join rel (create-relation '[key phone] #{["A's number" "+49 641 12345"] 
+                                                      ["B's number" "+49 221 12345"]}))))
+      (is (= (create-relation '[key phone id name] #{["A's number" "+49 641 12345" 1 "Arthur"]
+                                                     ["B's number" "+49 221 12345" 1 "Arthur"]
+                                                     ["A's number" "+49 641 12345" 2 "Betty"]
+                                                     ["B's number" "+49 221 12345" 2 "Betty"]})
+            (join (create-relation '[key phone] #{["A's number" "+49 641 12345"] 
+                                                  ["B's number" "+49 221 12345"]}) rel))))
+    
     (testing "Join, case 3: intersect"
       (is (= (create-relation '[id name] #{[2 "Betty"]})
-            (join rel (create-relation '[name id] #{["Betty" 2] ["Carl" 3]})))))))
+            (join rel (create-relation '[name id] #{["Betty" 2] ["Carl" 3]})))))
+    
+    (testing "Join, case 4: semi join"
+      (is (= (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"]})
+            (join rel (create-relation '[id] #{[1] [2]})))))))

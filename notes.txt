@@ -1,1 +1,2 @@
 - empty intersect / not -> universal relation -> how to represent?
+- natural join: [id name] join [id phone] - one id occurs more than once in one relation?

@@ -68,3 +68,21 @@
     (is (thrown? IllegalArgumentException (sort-vec empty-rel rel2)))
     (is (thrown? IllegalArgumentException (sort-vec rel2 rel3)))
     (is (thrown? IllegalArgumentException (sort-vec rel3 rel1)))))
+
+(deftest common-attr-test
+  (let [rel1 (create-relation '[id name] #{})
+        empty-rel (create-relation [] #{})]
+    (is (= '[id] (common-attr rel1 (create-relation '[id phone] #{}))))
+    (is (= '[] (common-attr rel1 (create-relation '[key phone] #{}))))
+    (is (= '[id name] (common-attr rel1 rel1)))
+    (is (= '[] (common-attr empty-rel empty-rel)))
+    (is (= '[] (common-attr empty-rel rel1)))))
+
+(deftest diverging-attr-test
+  (let [rel1 (create-relation '[id name] #{})
+        empty-rel (create-relation [] #{})]
+    (is (= '[id] (diverging-attr rel1 (create-relation '[name phone] #{}))))
+    (is (= '[] (diverging-attr rel1 rel1)))
+    (is (= '[id name] (diverging-attr rel1 empty-rel)))
+    (is (= '[] (diverging-attr empty-rel rel1)))
+    (is (= '[name] (diverging-attr rel1 (create-relation '[id phone] #{}))))))

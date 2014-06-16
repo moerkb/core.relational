@@ -59,8 +59,42 @@
       (create-relation attributes body)))
   
   (join [relation1 relation2]
-    ; TODO
-    relation1)
+    (let [common (common-attr relation1 relation2)
+          div-r1 (diverging-attr relation1 relation2)
+          div-r2 (diverging-attr relation2 relation1)] 
+      (cond 
+       ; case 1: natural join
+       (and 
+         (not (empty? common))
+         (not (empty? div-r1))
+         (not (empty? div-r2)))
+    
+       (let [new-head (vec (concat (:head relation1) div-r2))
+             common-positions-r1 (map #(index-of (:head relation1) %) common)
+             common-positions-r2 (map #(index-of (:head relation2) %) common)
+             div-positions-r2 (map #(index-of (:head relation2) %) div-r2)]
+         ; add relation 2 value tuples to that of relation 1
+         (create-relation new-head 
+           ; tuple join
+           (set (map (fn [tuple-r1]
+                       (first (remove nil? (map (fn [tuple-r2]
+                                                  ; check equality of common attributes
+                                                  (if (every? true? (map (fn [pos-r1 pos-r2]
+                                                                           (= (nth tuple-r1 pos-r1)
+                                                                              (nth tuple-r2 pos-r2)))
+                                                                      common-positions-r1
+                                                                      common-positions-r2))
+                                                    ; join tuples
+                                                    (vec (concat tuple-r1 (map (fn [pos]
+                                                                                 (nth tuple-r2 pos))
+                                                                            div-positions-r2)))))
+                                                    (:body relation2)))))
+                        (:body relation1)))))
+       
+       ; case 2: cross join
+       ; case 3: intersect
+       ; case 4: semijoin)
+       :else (throw (InternalError. "This should never fail (error code 1).")))))
   
   (union [relation1 relation2]
     (when-not (same-type? relation1 relation2)

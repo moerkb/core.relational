@@ -1,6 +1,23 @@
 (ns core.relational)
 ; general tools for working with relations
 
+(defn common-attr
+  "Returns a vector of all attributes that both relations have in common.
+  Order is that in relation 1."
+  [relation1 relation2]
+  (remove nil? (map #(some #{%} (:head relation2)) 
+                 (:head relation1))))
+
+(defn diverging-attr
+  "Returns a vector of all attributes that occur in relation 1, but are not
+  common with relation 2. Order is that in relation 1."
+  [relation1 relation2]
+  (let [common (common-attr relation1 relation2)]
+    (remove nil? (map #(if (some #{%} (:head relation2))
+                         nil
+                         %) 
+                 (:head relation1)))))
+
 (defn same-type? 
   "Checks if two relations have the same type, i.e. have the same header."
   [relation1 relation2]

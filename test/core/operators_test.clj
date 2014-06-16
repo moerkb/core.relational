@@ -34,4 +34,10 @@
         (is (= result (intersect rel (create-relation '[name id] #{["Carl" 3] ["Betty" 2]}))))
         (is (= (create-relation '[id name] #{}) (intersect rel (create-relation '[name id] #{["Carl" 3]}))))
         (is (thrown? IllegalArgumentException (intersect empty-rel result)))
-        (is (thrown? IllegalArgumentException (union rel (create-relation '[name] #{["Carl"]}))))))))
+        (is (thrown? IllegalArgumentException (union rel (create-relation '[name] #{["Carl"]}))))))
+    
+    (testing "Join, case 1: natural join"
+      (is (= (create-relation '[id name phone] #{[2 "Betty" "+49 641 12345"] [1 "Arthur" "+49 2931 12345"]})
+            (join rel (create-relation '[id phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]}))))
+      (is (= (create-relation '[id phone name] #{[2 "+49 641 12345" "Betty"] [1 "+49 2931 12345" "Arthur"]})
+            (join (create-relation '[id phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]}) rel))))))

@@ -28,6 +28,5 @@
            (set? body)
            (or
              (empty? body)
-             (every? vector? body))
-           (every? #(not-any? nil? %) body))]}
+             (every? #(and (vector? %) (not-any? nil? %)) body)))]}
   (Relation. head body))

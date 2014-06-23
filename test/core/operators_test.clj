@@ -1,5 +1,28 @@
 (ns core.relational-test)
 
+(deftest hash-relation-operators-test
+  (let [r1 (hash-relation #{{:id 1 :name "Arthur"} {:id 2 :name "Betty"}})
+        r2 (hash-relation #{{:id 2 :name "Betty"} {:id 3 :name "Carl"}})]
+    (testing "Rename"
+      (is (= (hash-relation #{{:id 1 :pre-name "Arthur"} {:id 2 :pre-name "Betty"}})
+             (rename r1 :name :pre-name))))
+    (testing "Project"
+      (is (= (hash-relation #{{:name "Arthur"} {:name "Betty"}})
+             (project r1 [:name]))))
+    (testing "Join"
+      (is (= (hash-relation #{{:id 1 :name "Arthur" :phone "12345"} {:id 2 :name "Betty" :phone "54321"}})
+             (join r1 (hash-relation #{{:id 1 :phone "12345"} {:id 2 :phone "54321"}}))))
+      (is (= (intersect r1 r2)
+             (join r1 r2)))
+      (is (= r1
+             (join r1 (hash-relation #{{:id 1} {:id 2}})))))
+    (testing "Union"
+      (is (= (hash-relation #{{:id 1 :name "Arthur"} {:id 2 :name "Betty"} {:id 3 :name "Carl"}})
+             (union r1 r2))))
+    (testing "Intersect"
+      (is (= (hash-relation #{{:id 2 :name "Betty"}})
+             (intersect r1 r2))))))
+
 (deftest relational-operators-test
   (let [rel (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"]})] 
     (testing "Rename"

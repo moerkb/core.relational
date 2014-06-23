@@ -30,3 +30,7 @@
              (empty? body)
              (every? #(and (vector? %) (not-any? nil? %)) body)))]}
   (Relation. head body))
+
+(defrecord HashRelation [head body])
+(defn hash-relation [body]
+  (HashRelation. (set (keys (first body))) body))

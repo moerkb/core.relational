@@ -31,6 +31,22 @@
     "Returns tuples that apper in both relations. The must be of the same
     type, i.e. have same header."))
 
+; implementation for HashRelation
+(extend-protocol RelationalOperators HashRelation
+  (rename [relation attribute new-name]
+    (hash-relation (clj-set/rename (:body relation) {attribute new-name})))
+  (restrict [relation predicate?] 
+    ; TODO
+    relation)
+  (project [relation attributes] 
+    (hash-relation (clj-set/project (:body relation) attributes)))
+  (join [relation1 relation2]
+    (hash-relation (clj-set/join (:body relation1) (:body relation2))))
+  (union [relation1 relation2]
+    (hash-relation (clj-set/union (:body relation1) (:body relation2))))
+  (intersect [relation1 relation2]
+    (hash-relation (clj-set/intersection (:body relation1) (:body relation2)))))
+
 ; implementation for Relation
 (extend-protocol RelationalOperators Relation
   (rename [relation attribute new-name]

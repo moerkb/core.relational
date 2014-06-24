@@ -3,8 +3,8 @@
 
 (defprotocol RelationalOperators
   "Protocol for all relational operators."
-  (rename [relation attribute new-name] 
-    "Renames attribute of relation to new-name.")
+  (rename [relation smap] 
+    "Given a substitution map, it renames the attributes.")
   (restrict [relation predicate?] 
     "Filters value tuples with given predicate.")
   (project [relation attributes] 
@@ -33,8 +33,9 @@
 
 ; implementation for HashRelation
 (extend-protocol RelationalOperators HashRelation
-  (rename [relation attribute new-name]
-    (hash-relation (clj-set/rename (:body relation) {attribute new-name})))
+  (rename [relation smap]
+    ; TODO
+    relation)
   (restrict [relation predicate?] 
     ; TODO
     relation)
@@ -49,11 +50,8 @@
 
 ; implementation for Relation
 (extend-protocol RelationalOperators Relation
-  (rename [relation attribute new-name]
-    (when (attr-not-exist? relation attribute)
-      (throw (IllegalArgumentException. "Attribute does not exist in relation.")))
-    (let [new-head (replace {attribute new-name} (:head relation))]
-      (create-relation new-head (:body relation))))
+  (rename [relation smap]
+    (Relation. (replace smap (:head relation)) (:body relation)))
   
   (restrict [relation predicate?]
     ; TODO

@@ -27,9 +27,10 @@
 
 (defmethod print-method Relation 
   [rel writer]
-  (.write writer (str "Relation" \newline
-                      "Header: " (:head rel) \newline 
-                      "Body:   " (rel-to-hash-map rel))))
+  #_(.write writer (str "Relation" \newline
+                       "Header: " (:head rel) \newline 
+                       "Body:   " (rel-to-hash-map rel)))
+  (.write writer (str "Rel:" (rel-to-hash-map rel))))
 
 (defn create-relation 
   "Defines a new (typeless) relation. Head is the structure in form

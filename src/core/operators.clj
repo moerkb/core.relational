@@ -29,7 +29,42 @@
     same header.")
   (intersect [relation1 relation2]
     "Returns tuples that apper in both relations. The must be of the same
-    type, i.e. have same header."))
+    type, i.e. have same header.")
+  (group [relation attributes alias]
+    "Removes attributes from relation and produces a new attribute with name
+    alias. The type of that is relation - containing the attributes originally
+    removed, but grouped by all other attributes.
+    
+    NOTICE: In SQL you would not give attributes that are grouped, but by which
+    attribute they shall be grouped. Also SQL cannot produce relations containg
+    relations, so group by only makes sense with aggregate functions.
+
+    Example: Given the relation 'orders' like
+    +--------+-----------+-----+
+    | BillId | ProductId | Qty |
+    +--------+-----------+-----+
+    | 7      | 42        | 5   |
+    | 5      | 21        | 7   |
+    | 5      | 42        | 3   |
+    +--------+-----------+-----+
+
+    the statement (group orders [ProductId Qty] Positions) would produce:
+    +--------+---------------------+
+    | BillId | Positions           |
+    +--------+---------------------+
+    | 7      | +-----------+-----+ |
+    |        | | ProductId | Qty | |
+    |        | +-----------+-----+ |
+    |        | | 42        | 5   | |
+    |        | +-----------+-----+ |
+    |        |                     |
+    | 5      | +-----------+-----+ |
+    |        | | ProductId | Qty | |
+    |        | +-----------+-----+ |
+    |        | | 21        | 7   | |
+    |        | | 42        | 3   | |
+    |        | +-----------+-----+ |
+    +--------+---------------------+"))
 
 ; implementation for HashRelation
 (extend-protocol RelationalOperators HashRelation
@@ -158,4 +193,22 @@
                                                 (nth tuple pos)) 
                                            sorter))) 
                                (:body relation2)))))]
-      (create-relation (:head relation1) (clj-set/intersection (:body relation1) rel2-body)))))
+      (create-relation (:head relation1) (clj-set/intersection (:body relation1) rel2-body))))
+  
+  (group [relation attributes alias]
+    (let [positions (map (fn [attr]
+                           (index-of (:head relation) attr))
+                      attributes)
+          remaining (filter (fn [pos]
+                              (if (some #(= pos %) positions)
+                                false
+                                true))
+                      (range 0 (count (:head relation))))
+          new-header (conj (vec (map #(get (:head relation) %) remaining)) alias)
+          tuples-rel (apply merge-with union (map (fn [tuple]
+                                                    {(vec (map (fn [pos] (get tuple pos)) remaining))
+                                                     (create-relation attributes #{(vec (map #(get tuple %)
+                                                                                                  positions))})})
+                                               (:body relation)))
+          new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
+      (create-relation new-header new-body))))

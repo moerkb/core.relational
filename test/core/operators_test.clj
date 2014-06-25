@@ -87,4 +87,14 @@
     
     (testing "Join, case 4: semi join"
       (is (= (create-relation '[id name] #{[1 "Arthur"] [2 "Betty"]})
-            (join rel (create-relation '[id] #{[1] [2]})))))))
+            (join rel (create-relation '[id] #{[1] [2]})))))
+    
+    (testing "Group"
+      (is (= (create-relation 
+               '[BillId Positions] 
+               #{[5 (new-relation #{{'ProductId 42 'Qty 3} {'ProductId 21 'Qty 7}})] 
+                 [7 (new-relation #{{'ProductId 42 'Qty 5}})]})
+            (group 
+              (create-relation '[BillId ProductId Qty] #{[5 42 3] [5 21 7] [7 42 5]})
+              '[ProductId Qty]
+              'Positions))))))

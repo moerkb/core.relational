@@ -95,24 +95,7 @@
     |        | +-----------+-----+ |
     +--------+---------------------+"))
 
-; implementation for HashRelation
-(extend-protocol RelationalOperators HashRelation
-  (rename [relation smap]
-    ; TODO
-    relation)
-  (restrict [relation predicate?] 
-    ; TODO
-    relation)
-  (project [relation attributes] 
-    (hash-relation (clj-set/project (:body relation) attributes)))
-  (join [relation1 relation2]
-    (hash-relation (clj-set/join (:body relation1) (:body relation2))))
-  (union [relation1 relation2]
-    (hash-relation (clj-set/union (:body relation1) (:body relation2))))
-  (intersect [relation1 relation2]
-    (hash-relation (clj-set/intersection (:body relation1) (:body relation2)))))
-
-; implementation for Relation
+; implementation for Relation (clojure data structures, row-oriented)
 (extend-protocol RelationalOperators Relation
   (rename [relation smap]
     (Relation. (replace smap (:head relation)) (:body relation)))

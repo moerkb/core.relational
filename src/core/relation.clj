@@ -1,7 +1,25 @@
 (ns core.relational)
-; definition for relations and relation variables (relvars)
+; definition for relations
+
+(declare sort-rel)
 
 (defrecord Relation [head body])
+
+(defn sort-rel
+  "If both relations have the same type, a relation equal two rel2 is returned
+  with the same attribute order as rel1. If they have different type, it just
+  returns rel2."
+  [rel1 rel2]
+  (if-not (same-type? rel1 rel2)
+    rel2
+    (if (same-attr-order? rel1 rel2)
+      rel2
+      (let [sorter (sort-vec rel1 rel2)]
+        (Relation. 
+          (vec (map (fn [a] (get (:head rel2) a)) sorter))
+          (set (map (fn [t] (vec (map (fn [a]
+                                        (get t a)) sorter))) (:body rel2)))))
+      )))
 
 (defn new-relation
   "Give value tuples as a set of hash maps and it creates the relation"

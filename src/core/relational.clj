@@ -4,6 +4,10 @@
 
 ; entry point for core.relational; loads other classes
 
+(declare same-type?)
+(declare same-attr-order?)
+(declare sort-vec)
+
 (load "relation")
 (load "tools")
 (load "operators")

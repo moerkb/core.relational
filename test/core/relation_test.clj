@@ -13,16 +13,30 @@
     (let [head [:id :name]
           body #{ [1 "Arthur"] [2 "Betty"] }]
       (is (= (core.relational.Relation. head body)
-            (create-relation head body)))
+             (create-relation head body)))
       (is (= (core.relational.Relation. [] #{})
-            (create-relation [] #{})))))
+             (create-relation [] #{})))))
 
   (testing "Relation equality"
     (is (= (create-relation [] #{})
-          (create-relation [] #{})))
+           (create-relation [] #{})))
     (is (= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
-          (create-relation [:id :name] #{[2 "Betty"] [1 "Arthur"]})))
+           (create-relation [:id :name] #{[2 "Betty"] [1 "Arthur"]})))
     (is (not= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
-          (create-relation [:id :name] #{[1 "Arthur"]})))
+              (create-relation [:id :name] #{[1 "Arthur"]})))
     (is (not= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
-          (create-relation [:id :name] #{[1 "Arthur"] [2 "Bethy"]})))))
+              (create-relation [:id :name] #{[1 "Arthur"] [2 "Bethy"]})))
+    (is (= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
+           (create-relation [:name :id] #{["Arthur" 1] ["Betty" 2]})))))
+
+(deftest sort-rel-test
+  (let [r1 (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
+        r2 (create-relation [:name :id] #{["Arthur" 1] ["Betty" 2]})]
+    (is (and (= (:head r1) (:head (sort-rel r1 r1)))
+             (= (:body r1) (:body (sort-rel r1 r1)))))
+    (is (and (= (:head r2) (:head (sort-rel r2 r2)))
+             (= (:body r2) (:body (sort-rel r2 r2)))))
+    (is (and (= (:head r1) (:head (sort-rel r1 r2)))
+             (= (:body r1) (:body (sort-rel r1 r2)))))
+    (is (and (= (:head r2) (:head (sort-rel r2 r1)))
+             (= (:body r2) (:body (sort-rel r2 r1)))))))

@@ -1,12 +1,41 @@
 (ns core.relational)
 ; operators for relations and relvars
 
+; TODO
+; extended project (mit rename)
+; project- (remove, counterpart to project, attributes that shall be removed)
+; compose
+; divide
+; extend   EXTEND a ADD (exp AS Z)
+;    (extend rel {:new-attr tuple-func})
+;    sim. (project rel {:a1 :b1 :a2 :a2 :new-attr tuple-func})
+; group - new interface
+; semijoin ?
+; summarize
+;    SUMMARIZE SP PER (S#) ADD (count() AS P_COUNT)
+;    select s#, count(*) as p_count
+;       from sp group by s#
+;    (summarize #{:sno} {:pcnt #(count %)})
+;                              argument is relation, not tuple
+; tclose - transitive closure (binary relation)
+; ungroup
+; wrap
+; unwrap
+
 (defprotocol RelationalOperators
   "Protocol for all relational operators."
   (rename [relation smap] 
     "Given a substitution map, it renames the attributes.")
   (restrict [relation predicate?] 
-    "Filters value tuples with given predicate.")
+    
+    "Filters value tuples with given predicate.
+   
+     (restrict r (fn [t] (= (:sno t) 12)))
+     (restrict r #(= (:sno %) 12))
+
+     (restrict* r '(= (:sno %) 12))
+
+")
   (project [relation attributes] 
     "Only returns the attributes specified in a collection.")
   (join [relation1 relation2] 

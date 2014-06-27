@@ -39,18 +39,24 @@ stop
 
 ; SAP01
 ; select sno, status from s where city = 'Paris'
+(project (restrict s (fn [t] (= (:city t) "Paris")))
+         [:sno :status])
 
 ; SAP02
 ; select distinct pno from sp
+(project sp [:pno])
 
 ; SAP03
 ; select * from s
+s
 
 ; SAP04
 ; select sno from s where city = 'Paris' and status > 20
+; s.o.
 
 ; SAP05
 ; select sno, status from s where city = 'Paris' order by status desc
+; s.o. plus clj function (sort, sort-by)
 
 ; SAP06
 ; select pno, pname, weight from p where weight between 16 and 19
@@ -60,10 +66,22 @@ stop
 ; or
 ; select pno, pname, weight from p where weight in (select weight from p
 ;                                                   where color = 'Red')
+(restrict p {:weight (fn [t] 
+                       (contains? (project 
+                                    (:body (restrict p {:color #(= "Red" %)})) 
+                                    [:weight]) t))})
 
 ; SAP08
 ; a) select * from s cross join p where s.city = p.city
-; b) select * from s natural join sp natural join p where s.city = p.city
+(restrict (join (rename s {:city :scity}) 
+               (rename p {:city :pcity}))
+           #(= (:scity %) (:pcity %)))
+
+; b) select * from s join sp using (sno) join p using (pno) 
+;        where s.city = p.city
+
+(restrict (join p (join (rename s {:city :scity}) sp))
+  #(= (:city %) (:scity %)))
 
 ; SAP09
 ; select distinct s.city as 'delivering city', p.city as 'bearing city'
@@ -73,29 +91,40 @@ stop
 ; SAP10
 ; select s1.sno, s2.sno from s as s1 cross join s as s2
 ;   where s1.city = s2.city and s1.sno < s2.sno
+(project (restrict (join (rename s {:sno :sno1 ...}) (rename s {:sno :sno2 ...}))
+           #(and (= (:city1 %) (:city2 %)) (< (:sno1 %) (:sno2 %))))
+  [sno1 sno2])
 
 ; SAP11
 ; a) select sname from s natural join sp where sp.pno = 'P2'
 ; b) select sname from s where sno in (select sno from sp where pno = 'P2')
 
 ; SAP12
-; select distinct sname from s natural join sp natural join p
+; select distinct sname from s join sp join p
 ;   where p.color = 'Red'
 
 ; SAP13
 ; select count(sno) as Quantity from s
+(count (:body s))
 
 ; SAP14
 ; select count(distinct sno) as Quantity from sp
+(count (project sp [sno]))
 
 ; SAP15
 ; select sum(qty) as "Number of part P2" from sp where pno = 'P2'
+(reduce + (restrict sp #(= (:pno %) "P2")))
 
 ; SAP16
 ; select pno, sum(qty) as Quantity from sp group by pno order by pno
+(summarize sp [:pno] {:quantity (fn [r] (reduce + (project r [qty])))})
 
 ; SAP17
 ; select pno from sp group by pno having count(*) > 1 order by pno
+(project (restrict (project (group sp #{:sno :qty} :grp)
+                   {:pno :pno, :cnt #(reduce + (:grp %))})
+                  #(> (:cnt %) 1))
+         [:pno])
 
 ; SAP18
 ; create table SCopy (

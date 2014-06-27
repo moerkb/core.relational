@@ -3,7 +3,6 @@ QUESTIONS
 - natural join: [id name] join [id phone] - one id occurs more than once in one relation?
 
 TASKS
-- attribute names: keywords
 - saving relations (EDN, serialization)
 - extensible reader (ex. UUID) for relations?
 - project on non-existing attribute: ignore
@@ -12,3 +11,4 @@ TASKS
 - standard functions for relations: contains?, count, reduce, ...
 - special function/macro for project predicate (save source in meta, no %)
 - construct test data
+- relation equality on different order of attributes (internal representation)

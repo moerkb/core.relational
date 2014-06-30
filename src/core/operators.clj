@@ -98,7 +98,7 @@
 ; implementation for Relation (clojure data structures, row-oriented)
 (extend-protocol RelationalOperators Relation
   (rename [relation smap]
-    (Relation. (replace smap (:head relation)) (:body relation)))
+    (Relation. (replace smap (.head relation)) (.body relation)))
   
   (restrict [relation predicate?]
     ; TODO
@@ -112,10 +112,10 @@
     
     
     (let [; find positions of attributes that shall be shown
-          positions (map #(index-of (:head relation) %) attributes)
+          positions (map #(index-of (.head relation) %) attributes)
           ; "take" just these attributes
           value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
-                              (:body relation)))
+                              (.body relation)))
           body (if (every? empty? value-tuples) #{} value-tuples)] 
       (create-relation attributes body)))
   
@@ -130,10 +130,10 @@
          (or (not (empty? div-r1))
              (not (empty? div-r2))))
     
-       (let [new-head (vec (concat (:head relation1) div-r2))
-             common-positions-r1 (map #(index-of (:head relation1) %) common)
-             common-positions-r2 (map #(index-of (:head relation2) %) common)
-             div-positions-r2 (map #(index-of (:head relation2) %) div-r2)]
+       (let [new-head (vec (concat (.head relation1) div-r2))
+             common-positions-r1 (map #(index-of (.head relation1) %) common)
+             common-positions-r2 (map #(index-of (.head relation2) %) common)
+             div-positions-r2 (map #(index-of (.head relation2) %) div-r2)]
          ; add relation 2 value tuples to that of relation 1
          (create-relation new-head 
            ; tuple join
@@ -149,18 +149,18 @@
                                                     (vec (concat tuple-r1 (map (fn [pos]
                                                                                  (nth tuple-r2 pos))
                                                                             div-positions-r2)))))
-                                                    (:body relation2)))))
-                        (:body relation1)))))
+                                                    (.body relation2)))))
+                        (.body relation1)))))
        
        ; case 2: cross join
        (empty? common)
        
-       (create-relation (vec (concat (:head relation1) (:head relation2)))
+       (create-relation (vec (concat (.head relation1) (.head relation2)))
          (set (map vec (apply concat (map (fn [tuple-r1]
                                            (map (fn [tuple-r2]
                                                  (concat tuple-r1 tuple-r2))
-                                            (:body relation2)))
-                                   (:body relation1))))))
+                                            (.body relation2)))
+                                   (.body relation1))))))
        
        ; case 3: intersect
        (and 
@@ -179,7 +179,7 @@
     
     (let [rel2-body (if (same-attr-order? relation1 relation2)
                       ; same order: nothing todo
-                      (:body relation2)
+                      (.body relation2)
          
                       ; different order: sort the second relation like the first one
                       (set (let [sorter (sort-vec relation1 relation2)]
@@ -187,8 +187,8 @@
                                     (vec (map (fn [pos] 
                                                 (nth tuple pos)) 
                                            sorter))) 
-                               (:body relation2)))))]
-      (create-relation (:head relation1) (clj-set/union (:body relation1) rel2-body))))
+                               (.body relation2)))))]
+      (create-relation (.head relation1) (clj-set/union (.body relation1) rel2-body))))
   
   (intersect [relation1 relation2]
     (when-not (same-type? relation1 relation2)
@@ -196,7 +196,7 @@
     
     (let [rel2-body (if (same-attr-order? relation1 relation2)
                       ; same order: nothing todo
-                      (:body relation2)
+                      (.body relation2)
          
                       ; different order: sort the second relation like the first one
                       (set (let [sorter (sort-vec relation1 relation2)]
@@ -204,23 +204,23 @@
                                     (vec (map (fn [pos] 
                                                 (nth tuple pos)) 
                                            sorter))) 
-                               (:body relation2)))))]
-      (create-relation (:head relation1) (clj-set/intersection (:body relation1) rel2-body))))
+                               (.body relation2)))))]
+      (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
   (group [relation attributes alias]
     (let [positions (map (fn [attr]
-                           (index-of (:head relation) attr))
+                           (index-of (.head relation) attr))
                       attributes)
           remaining (filter (fn [pos]
                               (if (some #(= pos %) positions)
                                 false
                                 true))
-                      (range 0 (count (:head relation))))
-          new-header (conj (vec (map #(get (:head relation) %) remaining)) alias)
+                      (range 0 (count (.head relation))))
+          new-header (conj (vec (map #(get (.head relation) %) remaining)) alias)
           tuples-rel (apply merge-with union (map (fn [tuple]
                                                     {(vec (map (fn [pos] (get tuple pos)) remaining))
                                                      (create-relation attributes #{(vec (map #(get tuple %)
                                                                                                   positions))})})
-                                               (:body relation)))
+                                               (.body relation)))
           new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
       (create-relation new-header new-body))))

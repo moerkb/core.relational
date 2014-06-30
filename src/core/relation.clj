@@ -3,7 +3,28 @@
 
 (declare sort-rel)
 
-(defrecord Relation [head body])
+(deftype Relation [head body]
+  Object
+  (equals [this obj]
+    (cond
+      (identical? this obj)
+      true
+      
+      (not (instance? Relation obj))
+      false
+      
+      (not= (count (.head this)) (count (.head obj)))
+      false
+
+      (and (same-type? this obj)
+           (or (and (nil? (.body this)))
+               (= (.body this) (.body (sort-rel this obj)))))
+      true 
+      
+      :else false))
+  (hashCode [this]
+    (+ (.hashCode (.head this))
+       (* 37 (.hashCode (.body this))))))
 
 (defn sort-rel
   "If both relations have the same type, a relation equal two rel2 is returned
@@ -16,9 +37,9 @@
       rel2
       (let [sorter (sort-vec rel1 rel2)]
         (Relation. 
-          (vec (map (fn [a] (get (:head rel2) a)) sorter))
+          (vec (map (fn [a] (get (.head rel2) a)) sorter))
           (set (map (fn [t] (vec (map (fn [a]
-                                        (get t a)) sorter))) (:body rel2)))))
+                                        (get t a)) sorter))) (.body rel2)))))
       )))
 
 (defn new-relation
@@ -39,14 +60,14 @@
   (set (map (fn [tuple]
               (apply merge (map (fn [attr val]
                                   {attr val})
-                                (:head rel)
+                                (.head rel)
                                 tuple)))
-            (:body rel))))
+            (.body rel))))
 
 (defmethod print-method Relation 
   [rel writer]
   #_(.write writer (str "Relation" \newline
-                       "Header: " (:head rel) \newline 
+                       "Header: " (.head rel) \newline 
                        "Body:   " (rel-to-hash-map rel)))
   (.write writer (str "Rel:" (rel-to-hash-map rel))))
 

@@ -5,32 +5,32 @@
   "Returns a vector of all attributes that both relations have in common.
   Order is that in relation 1."
   [relation1 relation2]
-  (remove nil? (map #(some #{%} (:head relation2)) 
-                 (:head relation1))))
+  (remove nil? (map #(some #{%} (.head relation2)) 
+                 (.head relation1))))
 
 (defn diverging-attr
   "Returns a vector of all attributes that occur in relation 1, but are not
   common with relation 2. Order is that in relation 1."
   [relation1 relation2]
   (let [common (common-attr relation1 relation2)]
-    (remove nil? (map #(if (some #{%} (:head relation2))
+    (remove nil? (map #(if (some #{%} (.head relation2))
                          nil
                          %) 
-                 (:head relation1)))))
+                 (.head relation1)))))
 
 (defn same-type? 
   "Checks if two relations have the same type, i.e. have the same header."
   [relation1 relation2]
   (= 
-    (sort (:head relation1))
-    (sort (:head relation2))))
+    (sort (.head relation1))
+    (sort (.head relation2))))
 
 (defn same-attr-order?
   "Checks if the attributes of the relations are in the same order. If not or
   if the headers are not equal, it returns false."
   [relation1 relation2]
   (if (and (same-type? relation1 relation2)
-        (= (:head relation1) (:head relation2)))
+        (= (.head relation1) (.head relation2)))
     true
     false))
 
@@ -41,7 +41,7 @@
       (attr-exist? relation attribute)
       (apply attr-exist? relation more)))
   ([relation attribute]
-    (if (some #(= attribute %) (:head relation))
+    (if (some #(= attribute %) (.head relation))
       true
       false)))
 
@@ -74,6 +74,6 @@
   (when-not (same-type? relation1 relation2)
     (throw (IllegalArgumentException. "The two relations have different types.")))
   
-  (let [h1 (:head relation1)
-        h2 (:head relation2)]
+  (let [h1 (.head relation1)
+        h2 (.head relation2)]
     (vec (map #(index-of h2 %) h1))))

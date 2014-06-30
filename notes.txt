@@ -1,14 +1,15 @@
 QUESTIONS
 - empty intersect / not -> universal relation -> how to represent?
 - natural join: [id name] join [id phone] - one id occurs more than once in one relation?
+- TABLE_DEE?
+- semi join as single operator?
+- join with joining attributes?
 
 TASKS
 - saving relations (EDN, serialization)
 - extensible reader (ex. UUID) for relations?
-- project on non-existing attribute: ignore
 - join: just one case
 - order by (sorted set, return on (seq r))
 - standard functions for relations: contains?, count, reduce, ...
 - special function/macro for project predicate (save source in meta, no %)
 - construct test data
-- relation equality on different order of attributes (internal representation)

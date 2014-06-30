@@ -1,72 +1,76 @@
 (ns core.relational)
 ; operators for relations and relvars
 
-; TODO
-; extended project (mit rename)
-; project- (remove, counterpart to project, attributes that shall be removed)
-; compose
-; divide
-; extend   EXTEND a ADD (exp AS Z)
-;    (extend rel {:new-attr tuple-func})
-;    sim. (project rel {:a1 :b1 :a2 :a2 :new-attr tuple-func})
-; group - new interface
-; semijoin ?
-; summarize
-;    SUMMARIZE SP PER (S#) ADD (count() AS P_COUNT)
-;    select s#, count(*) as p_count
-;       from sp group by s#
-;    (summarize #{:sno} {:pcnt #(count %)})
-;                              argument is relation, not tuple
-; tclose - transitive closure (binary relation)
-; ungroup
-; wrap
-; unwrap
-
 (defprotocol RelationalOperators
-  "Protocol for all relational operators."
-  (rename [relation smap] 
-    "Given a substitution map, it renames the attributes.")
+  "Protocol for relational operators. If an attribute is given that does not
+  exist in the relation, it shall be ignored and not lead to an error."
+  (rename [relation replace-map] 
+    "Given a substitution map, it renames the attributes.
+    
+    Example:
+      (rename r {:pname :product-name})")
+  (rename* [relation match-regexp replace-str]
+    "Renames all attributes that match match-regexp with replace-str. Semantics
+    are the same as clojure.string/replace.
+
+    Example:
+      (rename* r #\"(.+)\" \"prefix-$1\"")
   (restrict [relation predicate?] 
-    
-    "Filters value tuples with given predicate.
-   
-     (restrict r (fn [t] (= (:sno t) 12)))
-     (restrict r #(= (:sno %) 12))
+    "Returns a relation with only the tuples that satisfy the predicate. You
+    can use a single argument function for it (argument is a single tuple), but
+    you should use 'pred' instead, as it can be optimized. Be aware that every
+    keyword in pred will be interpreted as an attribute.
 
-     (restrict* r '(= (:sno %) 12))
+    Examples:
+      (restrict r (pred (= :sno 12)))  ; preferred
 
-")
-  (project [relation attributes] 
-    "Only returns the attributes specified in a collection.")
+      (restrict r (fn [t] (= (:sno t) 12)))  ; same as
+      (restrict r #(= (:sno %) 12))")
+  (project [relation project-map] 
+    "Returns the relation with only the attributes specified in pmap. That is a
+    hash map where the key is the final name and the value is what shall be
+    projected. This can be an attribute (can be renamed) or a function. If it
+    is a function, it takes a single argument representing a tuple.
+
+    Examples:
+      (project r {:sno :sno, :supplier-city :city})
+      (project r {:sno :sno, :new-status #(* 2 (:status %))})")
+  (project- [relation attributes]
+    "Projects the relation with all original attributes, but the one specified.
+    Think of it as \"remove\".
+
+    Example:
+      (project- r #{:sno})  ; relation r without :sno")
+  (extend [relation extend-map]
+    "Extends the relation with the attributes specified in extend-map. In this,
+    a key is a new attribute and the value a single argument function that
+    retrieves the tuple and returns the new value. The same effect can be
+    achieved with project.
+
+    Examples:
+      (extend r {:new-price (fn [t] (* 1.05 (:price t)))})
+      ; same as
+      (project r {:a1 :a1, :a2 :a2, ..., :new-price #(* 1.05 (:price t))})")
   (join [relation1 relation2] 
-    "Natural join, semi join, cross join and intersect for two relations,
-    depending on degenerations:
-    
-    (common attribute: both relation have that attribute,
-    (diverging attribute: an attribute one relation has, but not the other)
-    
-    (1) If both relations have common and diverging attributes, they are
-        joined on their common attributes (natural join).
-    (2) If both relations do not have at least one common attribute, the 
-        cartesian product is build as a relation (cross join).
-    (3) If both relations have common but not diverging attributes, the
-        intersect is build.
-    (4) If both relations have common attributes, but only one has diverging,
-        the semi join is built.")
+    "Produces the natural join of both relations.")
+  (compose [relation1 relation2]
+    "Like join, but the attribute(s) over which is joined are not in the
+    resulting relation.")
   (union [relation1 relation2]
-    "Combines both relations. Relations must be of same type, i.e. have
-    same header.")
+    "Combines both relations, provided they have the same type.")
   (intersect [relation1 relation2]
-    "Returns tuples that apper in both relations. The must be of the same
-    type, i.e. have same header.")
-  (group [relation attributes alias]
-    "Removes attributes from relation and produces a new attribute with name
-    alias. The type of that is relation - containing the attributes originally
-    removed, but grouped by all other attributes.
+    "Tuples of the returned relation appear in both relations. They must be of
+    the same type.")
+  (divide [relation1 relation2]
+    "Divide relation1 by relation2.")
+  (tclose [binary-relation]
+    "Builds the transitive closure on a binary relation.")
+  (group [relation group-map]
+    "Groups the attributes (group-map values) in a new relation that appears in 
+    the original relation as the key.
     
-    NOTICE: In SQL you would not give attributes that are grouped, but by which
-    attribute they shall be grouped. Also SQL cannot produce relations containg
-    relations, so group by only makes sense with aggregate functions.
+    NOTICE: Name the attributes that shall appear in the group, not by which
+            it shall be grouped (as done in SQL).
 
     Example: Given the relation 'orders' like
     +--------+-----------+-----+
@@ -77,7 +81,7 @@
     | 5      | 42        | 3   |
     +--------+-----------+-----+
 
-    the statement (group orders [ProductId Qty] Positions) would produce:
+    the statement (group orders {:Positions #{:ProductId :Qty}}) would produce:
     +--------+---------------------+
     | BillId | Positions           |
     +--------+---------------------+
@@ -93,7 +97,41 @@
     |        | | 21        | 7   | |
     |        | | 42        | 3   | |
     |        | +-----------+-----+ |
-    +--------+---------------------+"))
+    +--------+---------------------+
+
+    In SQL you would say \"GROUP BY BillId\".")
+  (ungroup [relation attributes]
+    "Counter part to group: extracts the attributes (that must be relations) to
+    be standard rows again (like you have never done a group).
+
+    Example:
+      (ungroup orders #{:Positions})  ; see group")
+  (wrap [relation wrap-map]
+    "Makes one attribute from several others as specified in wrap-map. The value
+    is a set of attributes; the key under which they shall appear.
+
+    Example:
+      (wrap r {:address #{:street :zip :city})")
+  (unwrap [relation attributes]
+    "Takes every attribute from the set attributes and unwraps it, so former
+    wrapped attributes are single attributes again like they have never been
+    wrapped.
+
+    Example:
+      (unwrap r #{:address})  ; see wrap")
+  (summarize [relation group-by sum-map]
+    "Apply aggregate functions to the relation. group-by is a set of attributes
+    by which the result shall be grouped. sum-map's values are functions that
+    take a relation (not a tuple!) as their only parameter. The return value
+    appears in the resulting relation under the key.
+
+    Examples:
+      (summarize r #{:sno} {:pcount #(count %)})
+      ; like in SQL: \"select sno, count(*) as pcount from r group by sno;\"
+
+      (summarize r #{:pno} {:psum #(reduce + (:price %))})
+      ; like in SQL: \"select pno, sum(price) as psum from r group by pno;\""))
+
 
 ; implementation for Relation (clojure data structures, row-oriented)
 (extend-protocol RelationalOperators Relation

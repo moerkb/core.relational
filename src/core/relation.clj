@@ -43,16 +43,20 @@
       )))
 
 (defn new-relation
-  "Give value tuples as a set of hash maps and it creates the relation"
+  "Give value tuples as a set of hash maps and it creates the relation. If it
+  is only one tuple, you may give it as a hash map directly instead as a set."
   [tuple-set]
-  (let [head (vec (keys (first tuple-set)))]
-    (Relation. 
-      head
-      (set (map (fn [tuple]
-                  (vec (map (fn [attr]
-                              (get tuple attr))
-                            head))) 
-                tuple-set)))))
+  (let [tuples (if (or (empty? tuple-set) (nil? tuple-set))
+                 #{}
+                 (if (map? tuple-set) #{tuple-set} tuple-set))]
+    (let [head (vec (keys (first tuples)))]
+     (Relation. 
+       head
+       (set (map (fn [tuple]
+                   (vec (map (fn [attr]
+                               (get tuple attr))
+                             head))) 
+                 tuples))))))
 
 (defn rel-to-hash-map
   "Returns a relation as a set of hash maps."

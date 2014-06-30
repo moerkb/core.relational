@@ -151,19 +151,14 @@
     relation)
   
   (project [relation attributes]
-    (when (and
-            (not (empty? attributes))
-            (apply attr-not-exist? relation attributes))
-      (throw (IllegalArgumentException. "At least one of the attributes does not exist in relation.")))
-    
-    
     (let [; find positions of attributes that shall be shown
-          positions (map #(index-of (.head relation) %) attributes)
+          positions (remove nil? (map #(index-of (.head relation) %) attributes))
           ; "take" just these attributes
           value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
                               (.body relation)))
-          body (if (every? empty? value-tuples) #{} value-tuples)] 
-      (create-relation attributes body)))
+          body (if (every? empty? value-tuples) #{} value-tuples)
+          head (vec (map #(get (.head relation) %) positions))] 
+      (create-relation head body)))
   
   (join [relation1 relation2]
     (let [common (common-attr relation1 relation2)
@@ -253,20 +248,20 @@
                                (.body relation2)))))]
       (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
-  (group [relation attributes alias]
-    (let [positions (map (fn [attr]
-                           (index-of (.head relation) attr))
-                      attributes)
-          remaining (filter (fn [pos]
-                              (if (some #(= pos %) positions)
-                                false
-                                true))
-                      (range 0 (count (.head relation))))
-          new-header (conj (vec (map #(get (.head relation) %) remaining)) alias)
-          tuples-rel (apply merge-with union (map (fn [tuple]
-                                                    {(vec (map (fn [pos] (get tuple pos)) remaining))
-                                                     (create-relation attributes #{(vec (map #(get tuple %)
-                                                                                                  positions))})})
-                                               (.body relation)))
-          new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
-      (create-relation new-header new-body))))
+  #_(group [relation attributes alias]
+     (let [positions (map (fn [attr]
+                            (index-of (.head relation) attr))
+                       attributes)
+           remaining (filter (fn [pos]
+                               (if (some #(= pos %) positions)
+                                 false
+                                 true))
+                       (range 0 (count (.head relation))))
+           new-header (conj (vec (map #(get (.head relation) %) remaining)) alias)
+           tuples-rel (apply merge-with union (map (fn [tuple]
+                                                     {(vec (map (fn [pos] (get tuple pos)) remaining))
+                                                      (create-relation attributes #{(vec (map #(get tuple %)
+                                                                                                   positions))})})
+                                                (.body relation)))
+           new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
+       (create-relation new-header new-body))))

@@ -1,19 +1,22 @@
 (ns core.relational.examples.sap
   (require [core.relational :refer :all]))
 
+; TODO: order by, contains?, reduce
+
 ; Supplier and Parts (SAP) database by Chris Date
 ; Exercises as from lecture by Prof. Dr. Renz 
 ; (http://homepages.thm.de/~hg11260/dbs.html 4 and 5)
 ; SQL equivalents are given
+; s.city is renamed for s.scity and p.city for p.pcity for easier join
 
-(def s (create-relation '[sno sname status city]
+(def s (create-relation [:sno :sname :status :scity]
                         #{["S1" "Smith" 20 "London"]
                           ["S2" "Jones" 10 "Paris"]
                           ["S3" "Blake" 30 "Paris"]
                           ["S4" "Clark" 20 "London"]
                           ["S5" "Adams" 30 "Athens"]}))
 
-(def sp (create-relation '[sno pno qty]
+(def sp (create-relation [:sno :pno :qty]
                          #{["S1" "P1" 300]
                            ["S1" "P2" 200]
                            ["S1" "P3" 400]
@@ -27,7 +30,7 @@
                            ["S4" "P4" 300]
                            ["S4" "P5" 400]}))
 
-(def p (create-relation '[pno pname color weight city]
+(def p (create-relation [:pno :pname :color :weight :pcity]
                         #{["P1" "Nut"   "Red"   12 "London"]
                           ["P2" "Bolt"  "Green" 17 "Paris"]
                           ["P3" "Screw" "Blue"  17 "Oslo"]
@@ -39,8 +42,10 @@ stop
 
 ; SAP01
 ; select sno, status from s where city = 'Paris'
-(project (restrict s (fn [t] (= (:city t) "Paris")))
+(project (restrict s (fn [t] (= (:scity t) "Paris")))
          [:sno :status])
+; or
+(project (restrict s (restr-pred (= :scity "Paris"))) )
 
 ; SAP02
 ; select distinct pno from sp
@@ -52,60 +57,86 @@ s
 
 ; SAP04
 ; select sno from s where city = 'Paris' and status > 20
-; s.o.
+(project (restrict s (restr-pred (and (= :scity "Paris")
+                                      (> :status 20)))) 
+                   [sno])
 
 ; SAP05
 ; select sno, status from s where city = 'Paris' order by status desc
-; s.o. plus clj function (sort, sort-by)
+(project (restrict s (restr-pred (= :scity "Paris"))) [:sno :status])
 
 ; SAP06
 ; select pno, pname, weight from p where weight between 16 and 19
+(project (restrict p (restr-pred (and (> :weight 16)
+                                      (< :weight 19)))) 
+         [:pno :pname :weight])
 
 ; SAP07
 ; select pno, pname, weight from p where weight in (12, 14, 19)
 ; or
 ; select pno, pname, weight from p where weight in (select weight from p
 ;                                                   where color = 'Red')
-(restrict p {:weight (fn [t] 
-                       (contains? (project 
-                                    (:body (restrict p {:color #(= "Red" %)})) 
-                                    [:weight]) t))})
+(restrict p (fn [t] 
+                (contains? (project 
+                             (restrict p (restr-pred (= "Red" :color))) 
+                             [:weight]) t)))
 
 ; SAP08
 ; a) select * from s cross join p where s.city = p.city
-(restrict (join (rename s {:city :scity}) 
-               (rename p {:city :pcity}))
-           #(= (:scity %) (:pcity %)))
+(restrict (join s p) 
+          (restr-pred (= :scity :pcity)))
 
 ; b) select * from s join sp using (sno) join p using (pno) 
 ;        where s.city = p.city
 
-(restrict (join p (join (rename s {:city :scity}) sp))
-  #(= (:city %) (:scity %)))
+(restrict (join p (join s sp))
+          (restr-pred (= :scity :pcity)))
 
 ; SAP09
 ; select distinct s.city as 'delivering city', p.city as 'bearing city'
 ;   from s join sp using (sno) join p using (pno)
 ; natural join cannot be used here!
 
+(project (join s (join p sp))
+         {:delivering-city :scity , :bearing-city :pcity})
+
 ; SAP10
 ; select s1.sno, s2.sno from s as s1 cross join s as s2
 ;   where s1.city = s2.city and s1.sno < s2.sno
-(project (restrict (join (rename s {:sno :sno1 ...}) (rename s {:sno :sno2 ...}))
-           #(and (= (:city1 %) (:city2 %)) (< (:sno1 %) (:sno2 %))))
-  [sno1 sno2])
+(project (restrict (join (rename* s #"(.+)" "s1-$1") 
+                         (rename* s #"(.+)" "s2-$1"))
+                   (restr-pred (and (= :s1-scity :s2-scity) 
+                                    (< :s1-sno   :s2-sno))))
+         [s1-sno1 s2-sno2]) 
 
 ; SAP11
 ; a) select sname from s natural join sp where sp.pno = 'P2'
+(project (restrict (join s sp) 
+                   (restr-pred (= :pno "P2"))) 
+         [sname])
+
 ; b) select sname from s where sno in (select sno from sp where pno = 'P2')
+(project (restrict s
+                   (restr-pred (contains? (project (restrict sp
+                                                             (restr-pred (= :pno "P2")))
+                                                   [:sno]) 
+                                          :sno)))
+         [sname])
 
 ; SAP12
 ; select distinct sname from s join sp join p
 ;   where p.color = 'Red'
+(project (restrict (join s (join sp p))
+                   (restr-pred (= :color "Red")))
+         [sname])
 
 ; SAP13
 ; select count(sno) as Quantity from s
-(count (:body s))
+(count s)
+; resp.
+(new-relation {:Quantity (count s)})
+; more precise
+(rename (summarize nil {:Quantity #(count %)}))
 
 ; SAP14
 ; select count(distinct sno) as Quantity from sp
@@ -113,7 +144,7 @@ s
 
 ; SAP15
 ; select sum(qty) as "Number of part P2" from sp where pno = 'P2'
-(reduce + (restrict sp #(= (:pno %) "P2")))
+(reduce + (restrict sp (restr-pred (= :pno "P2"))))
 
 ; SAP16
 ; select pno, sum(qty) as Quantity from sp group by pno order by pno
@@ -122,9 +153,12 @@ s
 ; SAP17
 ; select pno from sp group by pno having count(*) > 1 order by pno
 (project (restrict (project (group sp #{:sno :qty} :grp)
-                   {:pno :pno, :cnt #(reduce + (:grp %))})
-                  #(> (:cnt %) 1))
+                            {:pno :pno, :cnt #(reduce + (:grp %))})
+                   (restr-pred (> :cnt 1)))
          [:pno])
+
+
+; === RELATION VARIABLES ===
 
 ; SAP18
 ; create table SCopy (

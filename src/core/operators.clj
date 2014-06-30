@@ -3,7 +3,10 @@
 
 (defprotocol RelationalOperators
   "Protocol for relational operators. If an attribute is given that does not
-  exist in the relation, it shall be ignored and not lead to an error."
+  exist in the relation, it shall be ignored and not lead to an error.
+
+  If a set of attributes shall be given, it might also be another collection,
+  like a vector or a list."
   (rename [relation replace-map] 
     "Given a substitution map, it renames the attributes.
     
@@ -18,11 +21,11 @@
   (restrict [relation predicate?] 
     "Returns a relation with only the tuples that satisfy the predicate. You
     can use a single argument function for it (argument is a single tuple), but
-    you should use 'pred' instead, as it can be optimized. Be aware that every
-    keyword in pred will be interpreted as an attribute.
+    you should use 'restr-pred' instead, as it can be optimized. Be aware that 
+    every keyword in pred will be interpreted as an attribute. 
 
     Examples:
-      (restrict r (pred (= :sno 12)))  ; preferred
+      (restrict r (restr-pred (= :sno 12)))  ; preferred
 
       (restrict r (fn [t] (= (:sno t) 12)))  ; same as
       (restrict r #(= (:sno %) 12))")
@@ -32,8 +35,13 @@
     projected. This can be an attribute (can be renamed) or a function. If it
     is a function, it takes a single argument representing a tuple.
 
+    For convenience, project-map can also be a set of attributes, that shall be
+    contained in the resulting relation, but now functions or new names can be
+    given.
+
     Examples:
       (project r {:sno :sno, :supplier-city :city})
+      (project r #{:sno :city})
       (project r {:sno :sno, :new-status #(* 2 (:status %))})")
   (project- [relation attributes]
     "Projects the relation with all original attributes, but the one specified.

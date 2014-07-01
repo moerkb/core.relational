@@ -8,7 +8,7 @@
       (is (= (create-relation [:key :pre-name] #{[2 "Betty"] [1 "Arthur"]})
             (rename rel {:id :key, :name :pre-name}))))
     
-    (testing "Projection"
+    (testing "Projection with collection"
       (is (= rel (project rel [:id :name])))
       (is (= (create-relation [:name] #{["Arthur"] ["Betty"]})
             (project rel [:name])))
@@ -16,6 +16,12 @@
             (project rel [])))
       (is (= (new-relation {}) (project rel [:foo])))
       (is (= (new-relation nil) (project rel [:foo]))))
+    
+    (testing "Projection with hash map"
+      (is (= (create-relation [:pre-name] #{["Arthur"] ["Betty"]})
+             (project rel {:pre-name :name})))
+      (is (= (create-relation [:new-id :pre-name] #{[2 "Arthur"] [3 "Betty"]})
+             (project rel {:new-id #(inc %), :pre-name :name}))))
     
     (testing "Union"
       (let [rel (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})

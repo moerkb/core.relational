@@ -151,14 +151,19 @@
     relation)
   
   (project [relation attributes]
-    (let [; find positions of attributes that shall be shown
-          positions (remove nil? (map #(index-of (.head relation) %) attributes))
-          ; "take" just these attributes
-          value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
-                              (.body relation)))
-          body (if (every? empty? value-tuples) #{} value-tuples)
-          head (vec (map #(get (.head relation) %) positions))] 
-      (create-relation head body)))
+    (if (map? attributes)
+      ; attributes is a hash map
+      nil
+      
+      ; attributes is a set/vector/list
+      (let [; find positions of attributes that shall be shown
+            positions (remove nil? (map #(index-of (.head relation) %) attributes))
+            ; "take" just these attributes
+            value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
+                                (.body relation)))
+            body (if (every? empty? value-tuples) #{} value-tuples)
+            head (vec (map #(get (.head relation) %) positions))] 
+        (create-relation head body))))
   
   (join [relation1 relation2]
     (let [common (common-attr relation1 relation2)

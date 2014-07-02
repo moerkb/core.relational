@@ -21,7 +21,7 @@
       (is (= (create-relation [:pre-name] #{["Arthur"] ["Betty"]})
              (project rel {:pre-name :name})))
       (is (= (create-relation [:new-id :pre-name] #{[2 "Arthur"] [3 "Betty"]})
-             (project rel {:new-id #(inc %), :pre-name :name}))))
+             (project rel {:new-id '(inc :id), :pre-name :name}))))
     
     (testing "Union"
       (let [rel (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})

@@ -4,6 +4,7 @@ QUESTIONS
 - TABLE_DEE?
 - semi join as single operator?
 - join with joining attributes?
+- (vals ...) and (keys ...) retain the same order?
 
 TASKS
 - saving relations (EDN, serialization)

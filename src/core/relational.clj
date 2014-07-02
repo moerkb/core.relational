@@ -1,6 +1,7 @@
 (ns core.relational
   (:require [clojure.repl :refer :all]
-            [clojure.set :as clj-set]))
+            [clojure.set :as clj-set]
+            [clojure.walk :as walk]))
 
 ; entry point for core.relational; loads other classes
 

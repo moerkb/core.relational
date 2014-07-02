@@ -32,8 +32,10 @@
   (project [relation project-map] 
     "Returns the relation with only the attributes specified in pmap. That is a
     hash map where the key is the final name and the value is what shall be
-    projected. This can be an attribute (can be renamed) or a function. If it
-    is a function, it takes a single argument representing a tuple.
+    projected. This can be an attribute (can be renamed) or a list, representing
+    a function. Attributes must be written as a keyword and every keyword will
+    be interpreted as an attribute, if it appears in the original relation. If 
+    it is a function, it takes a single argument representing a tuple.
 
     For convenience, project-map can also be a set of attributes, that shall be
     contained in the resulting relation, but now functions or new names can be
@@ -42,7 +44,7 @@
     Examples:
       (project r {:sno :sno, :supplier-city :city})
       (project r #{:sno :city})
-      (project r {:sno :sno, :new-status #(* 2 (:status %))})")
+      (project r {:sno :sno, :new-status '(* 2 :status)})")
   (project- [relation attributes]
     "Projects the relation with all original attributes, but the one specified.
     Think of it as \"remove\".
@@ -153,7 +155,21 @@
   (project [relation attributes]
     (if (map? attributes)
       ; attributes is a hash map
-      nil
+      (let [head (vec (keys attributes))
+            ; seq with functions that return the correct value for the position
+            pos-funs (map (fn [elem]
+                              (list 'fn '[t] (walk/postwalk #(if (keyword? %)
+                                                               (let [pos (index-of (.head relation) %)]
+                                                                 (if pos
+                                                                   (list 'get 't pos)
+                                                                   %))
+                                                               %)
+                                                            elem)))
+                          (vals attributes))
+            body (set (map (fn [t]
+                            (vec (map #((eval %) t) pos-funs)))
+                          (.body relation)))]
+        (create-relation head body))
       
       ; attributes is a set/vector/list
       (let [; find positions of attributes that shall be shown

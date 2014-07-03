@@ -165,8 +165,8 @@
             pos-funs (map (fn [elem] (make-fun relation elem))
                           (vals attributes))
             body (set (map (fn [t]
-                            (vec (map #(% t) pos-funs)))
-                          (.body relation)))]
+                             (vec (map #(% t) pos-funs)))
+                           (.body relation)))]
         (create-relation head body))
       
       ; attributes is a set/vector/list
@@ -174,10 +174,20 @@
             positions (remove nil? (map #(index-of (.head relation) %) attributes))
             ; "take" just these attributes
             value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
-                                (.body relation)))
+                                   (.body relation)))
             body (if (every? empty? value-tuples) #{} value-tuples)
             head (vec (map #(get (.head relation) %) positions))] 
         (create-relation head body))))
+  
+  (project- [relation attributes]
+    (let [pos (remove nil? (map #(if (index-of attributes %)
+                                    nil
+                                    (index-of (.head relation) %)) 
+                                (.head relation)))]
+      (create-relation (vec (map #(get (.head relation) %) pos))
+                       (set (map (fn [t]
+                                   (vec (map #(get t %) pos)))
+                                 (.body relation))))))
   
   (join [relation1 relation2]
     (let [common (common-attr relation1 relation2)

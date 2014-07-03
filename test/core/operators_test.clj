@@ -8,6 +8,10 @@
       (is (= (create-relation [:key :pre-name] #{[2 "Betty"] [1 "Arthur"]})
             (rename rel {:id :key, :name :pre-name}))))
     
+    (testing "Rename all"
+      (is (= (create-relation [:pre-id :pre-name] #{[1 "Arthur"] [2 "Betty"]})
+             (rename* rel #"(.+)" "pre-$1"))))
+    
     (testing "Projection with collection"
       (is (= rel (project rel [:id :name])))
       (is (= (create-relation [:name] #{["Arthur"] ["Betty"]})

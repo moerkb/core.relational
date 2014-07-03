@@ -148,6 +148,12 @@
   (rename [relation smap]
     (Relation. (replace smap (.head relation)) (.body relation)))
   
+  (rename* [relation match-exp replace-str]
+    (create-relation (vec (map (fn [a] 
+                                 (-> a str (subs 1) (str/replace match-exp replace-str) keyword))
+                               (.head relation)))
+                     (.body relation)))
+  
   (restrict [relation predicate?]
     ; TODO
     relation)

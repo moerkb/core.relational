@@ -35,6 +35,14 @@
       (is (= (create-relation [:name] #{["Arthur"] ["Betty"]})
              (project- rel #{:id}))))
     
+    (testing "Add (extend)"
+      (is (= (create-relation [:id :name :status] 
+                              #{[1 "Arthur" 20] [2 "Betty" 40]})
+             (add rel {:status '(* 20 :id)})))
+      (is (= (create-relation [:id :name :status]
+                              #{[1 "Arthur" 50] [2 "Betty" 50]})
+             (add rel {:status 50}))))
+    
     (testing "Union"
       (let [rel (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
             result (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})

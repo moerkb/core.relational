@@ -5,6 +5,7 @@ QUESTIONS
 - semi join as single operator?
 - join with joining attributes?
 - (vals ...) and (keys ...) retain the same order?
+- name for extend?
 
 TASKS
 - saving relations (EDN, serialization)

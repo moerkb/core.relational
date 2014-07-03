@@ -48,7 +48,7 @@
 
     Example:
       (project- r #{:sno})  ; relation r without :sno")
-  (extend [relation extend-map]
+  (add [relation extend-map]
     "Extends the relation with the attributes specified in extend-map. In this,
     a key is a new attribute and the value the body of a single argument 
     function that retrieves the tuple and returns the new value. Every keyword
@@ -58,7 +58,7 @@
     Examples:
       (extend r {:new-price '(* 1.05 :price t)})
       ; same as
-      (project r {:a1 :a1, :a2 :a2, ..., :new-price '(* 1.05 :price)})")
+      (project r {:a1 :a1, :a2 :a2, ..., :an :an, :new-price '(* 1.05 :price)})")
   (join [relation1 relation2] 
     "Produces the natural join of both relations.")
   (compose [relation1 relation2]
@@ -187,6 +187,14 @@
       (create-relation (vec (map #(get (.head relation) %) pos))
                        (set (map (fn [t]
                                    (vec (map #(get t %) pos)))
+                                 (.body relation))))))
+  
+  (add [relation extend-map]
+    (let [new-attrs (keys extend-map)
+          new-val-funs (map (fn [f] (make-fun relation f)) (vals extend-map))]
+      (create-relation (vec (concat (.head relation) new-attrs))
+                       (set (map (fn [t]
+                                   (concat t (map #(% t) new-val-funs)))
                                  (.body relation))))))
   
   (join [relation1 relation2]

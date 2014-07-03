@@ -69,14 +69,14 @@
               '(= 2 :id))
     ; returns a function like
     (fn [t] (= 2 (get t 0)))"
-  [relation fun-list]
-  (eval (list 'fn '[t] (walk/postwalk #(if (keyword? %)
-                                           (let [pos (index-of (.head relation) %)]
-                                             (if pos
-                                               (list 'get 't pos)
-                                               %))
-                                           %)
-                                      fun-list))))
+  [relation flist]
+  (let [walk-fun #(if (keyword? %)
+                      (let [pos (index-of (.head relation) %)]
+                        (if pos
+                            (list 'get 't pos)
+                            %))
+                      %)] 
+    (eval (list 'fn '[t] (walk/postwalk walk-fun flist)))))
 
 (defn sort-vec
   "Creates a vector showing the positions of the attributes in the second

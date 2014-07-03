@@ -18,17 +18,14 @@
 
     Example:
       (rename* r #\"(.+)\" \"prefix-$1\"")
-  (restrict [relation predicate?] 
-    "Returns a relation with only the tuples that satisfy the predicate. You
-    can use a single argument function for it (argument is a single tuple), but
-    you should use 'restr-pred' instead, as it can be optimized. Be aware that 
-    every keyword in pred will be interpreted as an attribute. 
+  (restrict [relation predicate-list] 
+    "Returns a relation with only the tuples that satisfy the predicate-list.
+    That is a predicate function, but not defined as a function, but a list
+    representing the body of that function. Every keyword that appears as an
+    attribute of the relation will be interpreted as such.
 
     Examples:
-      (restrict r (restr-pred (= :sno 12)))  ; preferred
-
-      (restrict r (fn [t] (= (:sno t) 12)))  ; same as
-      (restrict r #(= (:sno %) 12))")
+      (restrict r '(= :sno \"S12\"))")
   (project [relation project-map] 
     "Returns the relation with only the attributes specified in pmap. That is a
     hash map where the key is the final name and the value is what shall be
@@ -53,14 +50,15 @@
       (project- r #{:sno})  ; relation r without :sno")
   (extend [relation extend-map]
     "Extends the relation with the attributes specified in extend-map. In this,
-    a key is a new attribute and the value a single argument function that
-    retrieves the tuple and returns the new value. The same effect can be
-    achieved with project.
+    a key is a new attribute and the value the body of a single argument 
+    function that retrieves the tuple and returns the new value. Every keyword
+    that appears as an attribute in the relation will be interpreted as such. 
+    The same effect can be achieved with project.
 
     Examples:
-      (extend r {:new-price (fn [t] (* 1.05 (:price t)))})
+      (extend r {:new-price '(* 1.05 :price t)})
       ; same as
-      (project r {:a1 :a1, :a2 :a2, ..., :new-price #(* 1.05 (:price t))})")
+      (project r {:a1 :a1, :a2 :a2, ..., :new-price '(* 1.05 :price)})")
   (join [relation1 relation2] 
     "Produces the natural join of both relations.")
   (compose [relation1 relation2]
@@ -154,26 +152,20 @@
                                (.head relation)))
                      (.body relation)))
   
-  (restrict [relation predicate?]
-    ; TODO
-    relation)
+  (restrict [relation predicate-list]
+    (let [f (make-fun relation predicate-list)]
+      (create-relation (.head relation)
+                       (set (filter f (.body relation))))))
   
   (project [relation attributes]
     (if (map? attributes)
       ; attributes is a hash map
       (let [head (vec (keys attributes))
             ; seq with functions that return the correct value for the position
-            pos-funs (map (fn [elem]
-                              (list 'fn '[t] (walk/postwalk #(if (keyword? %)
-                                                               (let [pos (index-of (.head relation) %)]
-                                                                 (if pos
-                                                                   (list 'get 't pos)
-                                                                   %))
-                                                               %)
-                                                            elem)))
+            pos-funs (map (fn [elem] (make-fun relation elem))
                           (vals attributes))
             body (set (map (fn [t]
-                            (vec (map #((eval %) t) pos-funs)))
+                            (vec (map #(% t) pos-funs)))
                           (.body relation)))]
         (create-relation head body))
       

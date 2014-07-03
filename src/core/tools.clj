@@ -58,6 +58,26 @@
       nil
       res)))
 
+(defn make-fun
+  "Takes a relation and a list. The list is returned as a single argument 
+  function in which every keyword that appears as an attribute in the relation
+  will be replaced to be the value of that attribute in tuple t, the argument
+  of that function.
+
+  Example:
+    (make-fun (create-relation [:id :name] #{...})
+              '(= 2 :id))
+    ; returns a function like
+    (fn [t] (= 2 (get t 0)))"
+  [relation fun-list]
+  (eval (list 'fn '[t] (walk/postwalk #(if (keyword? %)
+                                           (let [pos (index-of (.head relation) %)]
+                                             (if pos
+                                               (list 'get 't pos)
+                                               %))
+                                           %)
+                                      fun-list))))
+
 (defn sort-vec
   "Creates a vector showing the positions of the attributes in the second
   relation in the order of the first relation header. So the second relation

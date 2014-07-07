@@ -91,12 +91,11 @@
       (is (= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
             (join rel (create-relation [:id] #{[1] [2]})))))
     
-    #_(testing "Group"
-       (is (= (create-relation 
-                [:BillId :Positions] 
-                #{[5 (create-relation [:ProductId :Qty] #{[42 3] [21 7]})] 
-                  [7 (create-relation [:ProductId :Qty] #{[42 5]})]})
+    (testing "Group"
+      (is (= (create-relation 
+               [:BillId :Positions] 
+               #{[5 (create-relation [:ProductId :Qty] #{[42 3] [21 7]})] 
+                 [7 (create-relation [:ProductId :Qty] #{[42 5]})]})
              (group 
                (create-relation [:BillId :ProductId :Qty] #{[5 42 3] [5 21 7] [7 42 5]})
-               [:ProductId :Qty]
-               :Positions))))))
+               {:Positions #{:ProductId :Qty}}))))))

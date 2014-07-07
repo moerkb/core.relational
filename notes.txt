@@ -6,6 +6,7 @@ QUESTIONS
 - join with joining attributes?
 - (vals ...) and (keys ...) retain the same order?
 - name for extend?
+- same hash code for equivalent relations (relation in relation, group)
 
 TASKS
 - saving relations (EDN, serialization)
@@ -15,3 +16,4 @@ TASKS
 - standard functions for relations: contains?, count, reduce, ...
 - special function/macro for project predicate (save source in meta, no %)
 - construct test data
+- better join algorithm

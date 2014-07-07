@@ -285,20 +285,25 @@
                                (.body relation2)))))]
       (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
-  #_(group [relation attributes alias]
-     (let [positions (map (fn [attr]
-                            (index-of (.head relation) attr))
-                       attributes)
-           remaining (filter (fn [pos]
-                               (if (some #(= pos %) positions)
-                                 false
-                                 true))
-                       (range 0 (count (.head relation))))
-           new-header (conj (vec (map #(get (.head relation) %) remaining)) alias)
-           tuples-rel (apply merge-with union (map (fn [tuple]
-                                                     {(vec (map (fn [pos] (get tuple pos)) remaining))
-                                                      (create-relation attributes #{(vec (map #(get tuple %)
-                                                                                                   positions))})})
-                                                (.body relation)))
-           new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
-       (create-relation new-header new-body))))
+  (group [relation group-map]
+    (loop [rel relation, gmap (first group-map)] 
+      (if (nil? gmap)
+        rel
+        (let [[alias attributes] (first group-map)
+              positions (map (fn [attr]
+                             (index-of (.head rel) attr))
+                        attributes)
+              remaining (filter (fn [pos]
+                                  (if (some #(= pos %) positions)
+                                    false
+                                    true))
+                          (range 0 (count (.head rel))))
+              new-header (conj (vec (map #(get (.head rel) %) remaining)) alias)
+              tuples-rel (apply merge-with union (map (fn [tuple]
+                                                        {(vec (map (fn [pos] (get tuple pos)) remaining))
+                                                         (create-relation attributes #{(vec (map #(get tuple %)
+                                                                                                      positions))})})
+                                                   (.body rel)))
+              new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
+        (recur (create-relation new-header new-body)
+               (next group-map)))))))

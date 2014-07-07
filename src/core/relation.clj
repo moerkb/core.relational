@@ -24,7 +24,7 @@
       :else false))
   (hashCode [this]
     (+ (.hashCode (.head this))
-       (* 37 (.hashCode (.body this))))))
+       (* 37N (.hashCode (.body this))))))
 
 (defn sort-rel
   "If both relations have the same type, a relation equal two rel2 is returned

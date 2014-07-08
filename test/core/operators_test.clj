@@ -120,4 +120,8 @@
                (ungroup (group product-rel {:Positions #{:ProductId :Qty}}) #{:Positions})))))
     
     (testing "Wrap"
-      (is (= wrap-dest (wrap wrap-start {:address #{:street :zip :city}}))))))
+      (is (= wrap-dest (wrap wrap-start {:address #{:street :zip :city}}))))
+    
+    (testing "Unwrap"
+      (is (= wrap-start (unwrap (wrap wrap-start {:address #{:street :zip :city}})
+                                #{:address}))))))

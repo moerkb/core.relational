@@ -343,6 +343,21 @@
                                                                         (nth t %)) 
                                                              old-pos))))
                                    (.body rel)))]
-            (println new-body)
             (recur (create-relation new-head new-body)
-                   (next wrap-map)))))))
+                   (next wrap-map))))))
+  
+  (unwrap [relation attributes]
+    (loop [rel relation, attr (first attributes)]
+      (if (nil? attr)
+          rel
+          (let [attr-pos (index-of (.head rel) attr)
+                rem-pos (remove #(= attr-pos %) (range 0 (count (.head rel))))
+                new-attrs (-> rel .body first (nth attr-pos) keys)
+                new-head (vec (concat (map #(nth (.head rel) %) rem-pos)
+                                      new-attrs))
+                new-body (set (map (fn [t] 
+                                     (vec (concat (map #(nth t %) rem-pos)
+                                                  (map #(get (nth t attr-pos) %) new-attrs))))
+                                   (.body rel)))]
+            (recur (create-relation new-head new-body)
+                   (next attributes)))))))

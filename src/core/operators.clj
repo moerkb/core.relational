@@ -251,6 +251,9 @@
        ; default case
        :else (throw (InternalError. "This should never happen (error code 1).")))))
   
+  (compose [relation1 relation2]
+    (project- (join relation1 relation2) (common-attr relation1 relation2)))
+  
   (union [relation1 relation2]
     (when-not (same-type? relation1 relation2)
       (throw (IllegalArgumentException. "The two relations have different types.")))

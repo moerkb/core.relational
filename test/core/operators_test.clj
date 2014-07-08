@@ -91,6 +91,10 @@
       (is (= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
             (join rel (create-relation [:id] #{[1] [2]})))))
     
+    (testing "Composition"
+      (is (= (create-relation [:name :phone] #{["Betty" "+49 641 12345"] ["Arthur" "+49 2931 12345"]})
+             (compose rel (create-relation [:id :phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]})))))
+    
     #_(testing "Group"
        (is (= (create-relation 
                 [:BillId :Positions] 

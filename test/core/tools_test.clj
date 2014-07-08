@@ -86,3 +86,11 @@
     (is (= [:id :name] (diverging-attr rel1 empty-rel)))
     (is (= [] (diverging-attr empty-rel rel1)))
     (is (= [:name] (diverging-attr rel1 (create-relation [:id :phone] #{}))))))
+
+(deftest attr-complement-test
+  (let [attrs [:id :name :phone :address]
+        r (create-relation attrs #{})]
+    (is (= attrs (attr-complement r nil)))
+    (is (= attrs (attr-complement r [])))
+    (is (= [:id :name :address] (attr-complement r :phone)))
+    (is (= [:id :address] (attr-complement r [:name :street :phone])))))

@@ -8,6 +8,8 @@ QUESTIONS
 - name for extend?
 - same hash code for equivalent relations (relation in relation, group)
 - another implementation for wrap?
+- special function/macro for project predicate (save source in meta, no %) - just list?
+- algorithm division
 
 TASKS
 - saving relations (EDN, serialization)
@@ -15,6 +17,8 @@ TASKS
 - join: just one case
 - order by (sorted set, return on (seq r))
 - standard functions for relations: contains?, count, reduce, ...
-- special function/macro for project predicate (save source in meta, no %)
 - construct test data
 - better join algorithm
+- summarize
+- divide
+- tclose

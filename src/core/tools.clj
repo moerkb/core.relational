@@ -97,3 +97,13 @@
   (let [h1 (.head relation1)
         h2 (.head relation2)]
     (vec (map #(index-of h2 %) h1))))
+
+(defn attr-complement
+  "Returns a vector of all attributes of the relation, except the one(s)
+  specified. Parameter attributes may be a single keyword or a collection.
+  Unknown attributes are ignored. Result may be empty."
+  [relation attributes]
+  (if (and (not (keyword? attributes)) (empty? attributes))
+      (.head relation)
+      (let [attrs (if (coll? attributes) attributes [attributes])]
+        (vec (remove #(if (index-of attrs %) true false) (.head relation))))))

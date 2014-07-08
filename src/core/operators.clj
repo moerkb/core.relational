@@ -360,4 +360,11 @@
                                                   (map #(get (nth t attr-pos) %) new-attrs))))
                                    (.body rel)))]
             (recur (create-relation new-head new-body)
-                   (next attributes)))))))
+                   (next attributes))))))
+  
+  (summarize [relation group-by sum-map]
+    (let [group? (not (empty? group-by))
+          gsym (keyword (gensym "G_"))
+          ;rel (if group? (group relation ) relation)
+          ]
+      (println gsym))))

@@ -2,6 +2,7 @@
 
 (deftest relational-operators-test
   (let [rel (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
+        product-rel (create-relation [:BillId :ProductId :Qty] #{[5 42 3] [5 21 7] [7 42 5]})
         wrap-start (create-relation [:id :name :street :zip :city]
                                         #{[1 "Arthur" "Main Street 123" 12345 "New York"]
                                           [2 "Betty" "Fake Street 321" 54321 "York"]})
@@ -111,17 +112,24 @@
                 #{[5 (create-relation [:ProductId :Qty] #{[42 3] [21 7]})] 
                   [7 (create-relation [:ProductId :Qty] #{[42 5]})]})
               (group 
-                (create-relation [:BillId :ProductId :Qty] #{[5 42 3] [5 21 7] [7 42 5]})
+                product-rel
                 {:Positions #{:ProductId :Qty}}))))
     
     (testing "Ungroup"
-      (let [product-rel (create-relation [:BillId :ProductId :Qty] #{[5 42 3] [5 21 7] [7 42 5]})] 
-        (is (= product-rel
-               (ungroup (group product-rel {:Positions #{:ProductId :Qty}}) #{:Positions})))))
+      (is (= product-rel
+             (ungroup (group product-rel {:Positions #{:ProductId :Qty}}) #{:Positions}))))
     
     (testing "Wrap"
       (is (= wrap-dest (wrap wrap-start {:address #{:street :zip :city}}))))
     
     (testing "Unwrap"
       (is (= wrap-start (unwrap (wrap wrap-start {:address #{:street :zip :city}})
-                                #{:address}))))))
+                                #{:address}))))
+    
+    (testing "Summarize"
+      (is (= (create-relation [:ProductId :PCount] #{[42 8] [21 7]})
+             (summarize product-rel #{:ProductId} {:PCount #(reduce + (:qty %))})))
+      (is (= (new-relation {:PCount 15})
+             (summarize product-rel #{} {:PCount #(reduce + (:qty %))})))
+      (is (= (new-relation {:PCount 15})
+             (summarize product-rel nil {:PCount #(reduce + (:qty %))}))))))

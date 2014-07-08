@@ -306,4 +306,22 @@
                                                    (.body rel)))
               new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
         (recur (create-relation new-header new-body)
-               (next group-map)))))))
+               (next group-map))))))
+  
+  (ungroup [relation attributes]
+    (loop [rel relation, attr (first attributes)]
+      (if (nil? attr)
+          rel
+          (let [attr-pos (index-of (.head rel) attr)
+                rem-pos  (remove #(= attr-pos %) (range 0 (count (.head rel))))
+                new-head (vec (concat (remove #(= attr %) (.head rel)) 
+                                      (-> (.body rel) first (nth attr-pos) .head)))
+                new-body (apply concat (map (fn [t]
+                                              (let [beginning (map (fn [pos] (nth t pos))
+                                                                   rem-pos)]
+                                                (map (fn [inner-t]
+                                                       (concat beginning inner-t))
+                                                     (-> t (nth attr-pos) .body))))
+                                            (.body rel)))]
+            (recur (create-relation new-head (set (map vec new-body))) 
+                   (next attributes)))))))

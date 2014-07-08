@@ -327,4 +327,22 @@
                                                      (-> t (nth attr-pos) .body))))
                                             (.body rel)))]
             (recur (create-relation new-head (set (map vec new-body))) 
-                   (next attributes)))))))
+                   (next attributes))))))
+  
+  (wrap [relation wrap-map]
+    (loop [rel relation, wrapper (first wrap-map)]
+      (if (nil? wrapper)
+          rel
+          (let [[new-attr old-attrs] wrapper
+                old-pos (map #(index-of (.head rel) %) old-attrs)
+                rem-pos (remove #(index-of old-pos %) (range 0 (count (.head rel))))
+                new-head (conj (vec (map #(nth (.head rel) %) rem-pos)) new-attr)
+                new-body (set (map (fn [t]
+                                     (conj (vec (map #(nth t %) rem-pos))
+                                           (apply merge (map #(hash-map (nth (.head rel) %) 
+                                                                        (nth t %)) 
+                                                             old-pos))))
+                                   (.body rel)))]
+            (println new-body)
+            (recur (create-relation new-head new-body)
+                   (next wrap-map)))))))

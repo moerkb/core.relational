@@ -1,7 +1,17 @@
 (ns core.relational-test)
 
 (deftest relational-operators-test
-  (let [rel (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})] 
+  (let [rel (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
+        wrap-start (create-relation [:id :name :street :zip :city]
+                                        #{[1 "Arthur" "Main Street 123" 12345 "New York"]
+                                          [2 "Betty" "Fake Street 321" 54321 "York"]})
+        wrap-dest  (create-relation [:id :name :address]
+                                    #{[1 "Arthur" {:street "Main Street 123"
+                                                   :zip    12345
+                                                   :city   "New York"}]
+                                      [2 "Betty"  {:street "Fake Street 321"
+                                                   :zip    54321
+                                                   :city   "York"}]})] 
     (testing "Rename"
       (is (= (create-relation [:key :name] #{[2 "Betty"] [1 "Arthur"]})
             (rename rel {:id :key})))
@@ -107,4 +117,7 @@
     (testing "Ungroup"
       (let [product-rel (create-relation [:BillId :ProductId :Qty] #{[5 42 3] [5 21 7] [7 42 5]})] 
         (is (= product-rel
-               (ungroup (group product-rel {:Positions #{:ProductId :Qty}}) #{:Positions})))))))
+               (ungroup (group product-rel {:Positions #{:ProductId :Qty}}) #{:Positions})))))
+    
+    (testing "Wrap"
+      (is (= wrap-dest (wrap wrap-start {:address #{:street :zip :city}}))))))

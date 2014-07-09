@@ -9,6 +9,7 @@
 (declare same-type?)
 (declare same-attr-order?)
 (declare sort-vec)
+(declare index-of)
 
 (load "relation")
 (load "tools")

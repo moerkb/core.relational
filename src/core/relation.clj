@@ -24,7 +24,21 @@
       :else false))
   (hashCode [this]
     (+ (.hashCode (.head this))
-      (* 37N (.hashCode (.body this))))))
+      (* 37N (.hashCode (.body this)))))
+  
+  clojure.lang.IKeywordLookup
+  (getLookupThunk [this key]
+    (reify clojure.lang.ILookupThunk
+      (get [_ _]
+        (case key
+          :body (.body this)
+          :head (.head this)
+          (let [target-pos (index-of (.head this) key)] 
+            (if (nil? target-pos)
+                nil
+                (vec (map (fn [t]
+                           (get t target-pos))
+                         (.body this))))))))))
 
 (defn sort-rel
   "If both relations have the same type, a relation equal two rel2 is returned

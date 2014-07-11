@@ -9,7 +9,7 @@ QUESTIONS
 - same hash code for equivalent relations (relation in relation, group)
 - another implementation for wrap?
 - special function/macro for project predicate (save source in meta, no %) - just list?
-- algorithm division
+- algorithm division, tclose
 - gensyms (summarize -> group (:head und .head))
 
 TASKS

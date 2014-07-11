@@ -74,6 +74,12 @@
         (is (thrown? IllegalArgumentException (intersect empty-rel result)))
         (is (thrown? IllegalArgumentException (union rel (create-relation [:name] #{["Carl"]}))))))
     
+    (testing "Tclose"
+      (let [bin-rel (create-relation [:from :to] #{[1 2] [2 3] [2 4] [3 5] [3 6] [4 5] [6 7]})
+            tclose_bin_rel (union bin-rel (create-relation [:from :to]
+                                            #{[1 3] [1 4] [1 5] [1 6] [1 7] [2 5] [2 6] [2 7] [3 7]}))]
+        (is (= tclose_bin_rel (tclose bin-rel)))))
+    
     (testing "Join, case 1: natural join"
       (is (= (create-relation [:id :name :phone] #{[2 "Betty" "+49 641 12345"] [1 "Arthur" "+49 2931 12345"]})
             (join rel (create-relation [:id :phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]}))))

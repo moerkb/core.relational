@@ -288,6 +288,9 @@
                                (.body relation2)))))]
       (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
+  (tclose [rel]
+    nil)
+  
   (group [relation group-map]
     (loop [rel relation, gmap group-map] 
       (if (nil? gmap)

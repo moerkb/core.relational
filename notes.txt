@@ -10,6 +10,7 @@ QUESTIONS
 - another implementation for wrap?
 - special function/macro for project predicate (save source in meta, no %) - just list?
 - algorithm division
+- gensyms (summarize -> group (:head und .head))
 
 TASKS
 - saving relations (EDN, serialization)

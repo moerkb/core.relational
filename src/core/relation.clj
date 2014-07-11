@@ -29,16 +29,16 @@
   clojure.lang.IKeywordLookup
   (getLookupThunk [this key]
     (reify clojure.lang.ILookupThunk
-      (get [_ _]
+      (get [_ target]
         (case key
           :body (.body this)
           :head (.head this)
-          (let [target-pos (index-of (.head this) key)] 
+          (let [target-pos (index-of (.head target) key)]
             (if (nil? target-pos)
                 nil
                 (vec (map (fn [t]
                            (get t target-pos))
-                         (.body this))))))))))
+                         (.body target))))))))))
 
 (defn sort-rel
   "If both relations have the same type, a relation equal two rel2 is returned

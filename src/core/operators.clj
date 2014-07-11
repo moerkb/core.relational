@@ -129,9 +129,9 @@
       (unwrap r #{:address})  ; see wrap")
   (summarize [relation group-by sum-map]
     "Apply aggregate functions to the relation. group-by is a set of attributes
-    by which the result shall be grouped. sum-map's values are functions that
-    take a relation (not a tuple!) as their only parameter. The return value
-    appears in the resulting relation under the key.
+    by which the result shall be grouped. sum-map's values are functions that 
+    take a relation body (not a tuple!) as their only parameter. The return 
+    value appears in the resulting relation under the key.
 
     Examples:
       (summarize r #{:sno} {:pcount #(count %)})
@@ -289,10 +289,10 @@
       (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
   (group [relation group-map]
-    (loop [rel relation, gmap (first group-map)] 
+    (loop [rel relation, gmap group-map] 
       (if (nil? gmap)
         rel
-        (let [[alias attributes] (first group-map)
+        (let [[alias attributes] (first gmap)
               positions (map (fn [attr]
                              (index-of (.head rel) attr))
                         attributes)
@@ -309,15 +309,15 @@
                                                    (.body rel)))
               new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
         (recur (create-relation new-header new-body)
-               (next group-map))))))
+               (next gmap))))))
   
   (ungroup [relation attributes]
-    (loop [rel relation, attr (first attributes)]
-      (if (nil? attr)
+    (loop [rel relation, attrs attributes]
+      (if (nil? attrs)
           rel
-          (let [attr-pos (index-of (.head rel) attr)
+          (let [attr-pos (index-of (.head rel) (first attrs))
                 rem-pos  (remove #(= attr-pos %) (range 0 (count (.head rel))))
-                new-head (vec (concat (remove #(= attr %) (.head rel)) 
+                new-head (vec (concat (remove #(= (first attrs) %) (.head rel)) 
                                       (-> (.body rel) first (nth attr-pos) .head)))
                 new-body (apply concat (map (fn [t]
                                               (let [beginning (map (fn [pos] (nth t pos))
@@ -327,13 +327,13 @@
                                                      (-> t (nth attr-pos) .body))))
                                             (.body rel)))]
             (recur (create-relation new-head (set (map vec new-body))) 
-                   (next attributes))))))
+                   (next attrs))))))
   
   (wrap [relation wrap-map]
-    (loop [rel relation, wrapper (first wrap-map)]
+    (loop [rel relation, wrapper wrap-map]
       (if (nil? wrapper)
           rel
-          (let [[new-attr old-attrs] wrapper
+          (let [[new-attr old-attrs] (first wrapper)
                 old-pos (map #(index-of (.head rel) %) old-attrs)
                 rem-pos (remove #(index-of old-pos %) (range 0 (count (.head rel))))
                 new-head (conj (vec (map #(nth (.head rel) %) rem-pos)) new-attr)
@@ -344,13 +344,13 @@
                                                              old-pos))))
                                    (.body rel)))]
             (recur (create-relation new-head new-body)
-                   (next wrap-map))))))
+                   (next wrapper))))))
   
   (unwrap [relation attributes]
-    (loop [rel relation, attr (first attributes)]
-      (if (nil? attr)
+    (loop [rel relation, attrs attributes]
+      (if (nil? attrs)
           rel
-          (let [attr-pos (index-of (.head rel) attr)
+          (let [attr-pos (index-of (.head rel) (first attrs))
                 rem-pos (remove #(= attr-pos %) (range 0 (count (.head rel))))
                 new-attrs (-> rel .body first (nth attr-pos) keys)
                 new-head (vec (concat (map #(nth (.head rel) %) rem-pos)
@@ -360,11 +360,33 @@
                                                   (map #(get (nth t attr-pos) %) new-attrs))))
                                    (.body rel)))]
             (recur (create-relation new-head new-body)
-                   (next attributes))))))
+                   (next attrs))))))
   
   (summarize [relation group-by sum-map]
     (let [group? (not (empty? group-by))
           gsym (keyword (gensym "G_"))
-          ;rel (if group? (group relation ) relation)
-          ]
-      (println gsym))))
+          rel (if group? (group relation {gsym (attr-complement relation group-by)}) relation)
+          inner-rel-index (index-of (.head rel) gsym)]
+      (if group?
+          ; with group by
+          (loop [new-rel rel
+                 summap sum-map]
+            (if (nil? summap)
+                (project- new-rel [gsym])
+                (let [[name fun] (first summap)
+                      new-head (conj (.head new-rel) name)
+                      new-body (set (map (fn [t]
+                                           (let [new-val (fun (nth t inner-rel-index))] 
+                                             (conj t new-val)))
+                                         (.body new-rel)))]
+                  (recur (create-relation new-head new-body) 
+                         (next summap)))))
+          
+          ; no group by attributes
+          (loop [new-rel (create-relation [] #{[]})
+                 summap sum-map]
+            (if (nil? summap)
+                new-rel
+                (let [[name fun] (first summap)]
+                  (recur (add new-rel {name (fun rel)}) 
+                         (next summap)))))))))

@@ -124,12 +124,19 @@
     
     (testing "Unwrap"
       (is (= wrap-start (unwrap (wrap wrap-start {:address #{:street :zip :city}})
-                                #{:address}))))
+                                #{:address})))
+      (is (= wrap-start (unwrap (wrap wrap-start {:address #{:street :zip :city}
+                                                  :main    #{:id :name}})
+                                #{:address :main}))))
     
     (testing "Summarize"
       (is (= (create-relation [:ProductId :PCount] #{[42 8] [21 7]})
-             (summarize product-rel #{:ProductId} {:PCount #(reduce + (:qty %))})))
+             (summarize product-rel #{:ProductId} {:PCount #(reduce + (:Qty %))})))
+      (is (= (create-relation [:ProductId :PCount :MaxQty] #{[42 8 5] [21 7 7]})
+             (summarize product-rel #{:ProductId} {:PCount #(reduce + (:Qty %))
+                                                   :MaxQty #(reduce max (:Qty %))})))
       (is (= (new-relation {:PCount 15})
-             (summarize product-rel #{} {:PCount #(reduce + (:qty %))})))
-      (is (= (new-relation {:PCount 15})
-             (summarize product-rel nil {:PCount #(reduce + (:qty %))}))))))
+             (summarize product-rel #{} {:PCount #(reduce + (:Qty %))})))
+      (is (= (new-relation {:PCount 15, :MaxQty 7})
+             (summarize product-rel #{} {:PCount #(reduce + (:Qty %))
+                                         :MaxQty #(reduce max (:Qty %))}))))))

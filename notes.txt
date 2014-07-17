@@ -1,18 +1,10 @@
 QUESTIONS
 - empty intersect / not -> universal relation -> how to represent?
-- natural join: [id name] join [id phone] - one id occurs more than once in one relation?
-- TABLE_DEE?
-- semi join as single operator?
-- join with joining attributes?
-- (vals ...) and (keys ...) retain the same order?
-- name for extend?
-- same hash code for equivalent relations (relation in relation, group)
-- another implementation for wrap?
-- special function/macro for project predicate (save source in meta, no %) - just list?
-- algorithm division, tclose
-- gensyms (summarize -> group (:head und .head))
+- another implementation for wrap? - ?
 
 TASKS
+- TABLE_DEE, TABLE_DUM
+- restrict functions: fn, list and special macro
 - saving relations (EDN, serialization)
 - extensible reader (ex. UUID) for relations?
 - join: just one case
@@ -23,3 +15,10 @@ TASKS
 - summarize
 - divide
 - tclose
+- SAP08: pretty printer fix
+- SAP09: nil
+
+NOTES
+- TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists
+- semi join as single operator? -no
+- join with joining attributes? -no

@@ -46,13 +46,13 @@
       (is (= (create-relation [:name] #{["Arthur"] ["Betty"]})
              (project- rel #{:id}))))
     
-    (testing "Add (extend)"
+    (testing "Add-to (extend)"
       (is (= (create-relation [:id :name :status] 
                               #{[1 "Arthur" 20] [2 "Betty" 40]})
-             (add rel {:status '(* 20 :id)})))
+             (add-to rel {:status '(* 20 :id)})))
       (is (= (create-relation [:id :name :status]
                               #{[1 "Arthur" 50] [2 "Betty" 50]})
-             (add rel {:status 50}))))
+             (add-to rel {:status 50}))))
     
     (testing "Union"
       (let [rel (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
@@ -112,14 +112,14 @@
       (is (= (create-relation [:name :phone] #{["Betty" "+49 641 12345"] ["Arthur" "+49 2931 12345"]})
              (compose rel (create-relation [:id :phone] #{[2 "+49 641 12345"] [1 "+49 2931 12345"]})))))
     
-    #_(testing "Group"
-       (is (= (create-relation 
-                [:BillId :Positions] 
-                #{[5 (create-relation [:ProductId :Qty] #{[42 3] [21 7]})] 
-                  [7 (create-relation [:ProductId :Qty] #{[42 5]})]})
-              (group 
-                product-rel
-                {:Positions #{:ProductId :Qty}}))))
+    (testing "Group"
+      (is (= (create-relation 
+               [:BillId :Positions] 
+               #{[5 (create-relation [:ProductId :Qty] #{[42 3] [21 7]})] 
+                 [7 (create-relation [:ProductId :Qty] #{[42 5]})]})
+             (group 
+               product-rel
+               {:Positions #{:ProductId :Qty}}))))
     
     (testing "Ungroup"
       (is (= product-rel
@@ -143,6 +143,6 @@
                                                    :MaxQty #(reduce max (:Qty %))})))
       (is (= (new-relation {:PCount 15})
              (summarize product-rel #{} {:PCount #(reduce + (:Qty %))})))
-      (is (= (new-relation {:PCount 15, :MaxQty 7})
-             (summarize product-rel #{} {:PCount #(reduce + (:Qty %))
-                                         :MaxQty #(reduce max (:Qty %))}))))))
+      (is (= (.hashCode (new-relation {:PCount 15, :MaxQty 7}))
+             (.hashCode (summarize product-rel #{} {:PCount #(reduce + (:Qty %))
+                                                   :MaxQty #(reduce max (:Qty %))})))))))

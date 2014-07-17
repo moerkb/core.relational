@@ -42,34 +42,32 @@ stop
 
 ; SAP01
 ; select sno, status from s where city = 'Paris'
-(project (restrict s (fn [t] (= (:scity t) "Paris")))
-         [:sno :status])
-; or
-(project (restrict s (restr-pred (= :scity "Paris"))) )
+(print-relation (project (restrict s '(= :scity "Paris"))
+                 [:sno :status]))
 
 ; SAP02
 ; select distinct pno from sp
-(project sp [:pno])
+(print-relation (project sp [:pno]))
 
 ; SAP03
 ; select * from s
-s
+(print-relation s)
 
 ; SAP04
 ; select sno from s where city = 'Paris' and status > 20
-(project (restrict s (restr-pred (and (= :scity "Paris")
-                                      (> :status 20)))) 
-                   [sno])
+(project (restrict s '(and (= :scity "Paris")
+                           (> :status 20))) 
+                   [:sno])
 
 ; SAP05
 ; select sno, status from s where city = 'Paris' order by status desc
-(project (restrict s (restr-pred (= :scity "Paris"))) [:sno :status])
+(project (restrict s '(= :scity "Paris")) [:sno :status])
 
 ; SAP06
 ; select pno, pname, weight from p where weight between 16 and 19
-(project (restrict p (restr-pred (and (> :weight 16)
-                                      (< :weight 19)))) 
-         [:pno :pname :weight])
+(print-relation (project (restrict p '(and (>= :weight 16)
+                                          (<= :weight 19))) 
+                        [:pno :pname :weight]))
 
 ; SAP07
 ; select pno, pname, weight from p where weight in (12, 14, 19)
@@ -83,14 +81,14 @@ s
 
 ; SAP08
 ; a) select * from s cross join p where s.city = p.city
-(restrict (join s p) 
-          (restr-pred (= :scity :pcity)))
+(print-relation (restrict (join s p) 
+                         '(= :scity :pcity)))
 
 ; b) select * from s join sp using (sno) join p using (pno) 
 ;        where s.city = p.city
 
 (restrict (join p (join s sp))
-          (restr-pred (= :scity :pcity)))
+          '(= :scity :pcity))
 
 ; SAP09
 ; select distinct s.city as 'delivering city', p.city as 'bearing city'
@@ -98,22 +96,22 @@ s
 ; natural join cannot be used here!
 
 (project (join s (join p sp))
-         {:delivering-city :scity , :bearing-city :pcity})
+        {:delivering-city :scity , :bearing-city :pcity})
 
 ; SAP10
 ; select s1.sno, s2.sno from s as s1 cross join s as s2
 ;   where s1.city = s2.city and s1.sno < s2.sno
 (project (restrict (join (rename* s #"(.+)" "s1-$1") 
                          (rename* s #"(.+)" "s2-$1"))
-                   (restr-pred (and (= :s1-scity :s2-scity) 
-                                    (< :s1-sno   :s2-sno))))
-         [s1-sno1 s2-sno2]) 
+                   '(and (= :s1-scity :s2-scity) 
+                         (< :s1-sno   :s2-sno)))
+         [:s1-sno1 :s2-sno2]) 
 
 ; SAP11
 ; a) select sname from s natural join sp where sp.pno = 'P2'
 (project (restrict (join s sp) 
-                   (restr-pred (= :pno "P2"))) 
-         [sname])
+                   '(= :pno "P2")) 
+         [:sname])
 
 ; b) select sname from s where sno in (select sno from sp where pno = 'P2')
 (project (restrict s
@@ -127,16 +125,18 @@ s
 ; select distinct sname from s join sp join p
 ;   where p.color = 'Red'
 (project (restrict (join s (join sp p))
-                   (restr-pred (= :color "Red")))
-         [sname])
+                   '(= :color "Red"))
+         [:sname])
 
 ; SAP13
 ; select count(sno) as Quantity from s
 (count s)
 ; resp.
 (new-relation {:Quantity (count s)})
+(create-realtion [:id :name] #{[5 "Foo"]})
+(new-relation #{{:id 5 :name "foo"} {:id 7 :name "bar"}})
 ; more precise
-(rename (summarize nil {:Quantity #(count %)}))
+(summarize s nil {:Quantity #(count %)})
 
 ; SAP14
 ; select count(distinct sno) as Quantity from sp
@@ -144,17 +144,17 @@ s
 
 ; SAP15
 ; select sum(qty) as "Number of part P2" from sp where pno = 'P2'
-(reduce + (restrict sp (restr-pred (= :pno "P2"))))
+(summarize (restrict sp '(= :pno "P2")) nil {:Qty #(reduce + (:qty %))})
 
 ; SAP16
 ; select pno, sum(qty) as Quantity from sp group by pno order by pno
-(summarize sp [:pno] {:quantity (fn [r] (reduce + (project r [qty])))})
+(print-relation (summarize sp [:pno] {:quantity (fn [r] (reduce + (:qty r)))}))
 
 ; SAP17
 ; select pno from sp group by pno having count(*) > 1 order by pno
-(project (restrict (project (group sp #{:sno :qty} :grp)
-                            {:pno :pno, :cnt #(reduce + (:grp %))})
-                   (restr-pred (> :cnt 1)))
+(project (restrict (project (group sp {:grp #{:sno :qty}})
+                            {:pno :pno, :cnt '(reduce + :grp)})
+                   '(> :cnt 1))
          [:pno])
 
 

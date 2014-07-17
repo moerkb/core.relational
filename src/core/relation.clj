@@ -16,15 +16,19 @@
       (not= (count (.head this)) (count (.head obj)))
       false
 
-      (and (same-type? this obj)
+      (and (= (.hashCode this) (.hashCode obj))
+           (same-type? this obj)
            (or (and (nil? (.body this)))
                (= (.body this) (.body (sort-rel this obj)))))
       true 
       
       :else false))
   (hashCode [this]
-    (+ (.hashCode (.head this))
-      (* 37N (.hashCode (.body this)))))
+    (let [shead (sort (.head this))
+          sbody (.body (sort-rel (Relation. shead #{}) this))]
+      (+ (* 31 (+ (* 17 31) 
+                  (.hashCode shead))) 
+         (.hashCode sbody))))
   
   clojure.lang.IKeywordLookup
   (getLookupThunk [this key]

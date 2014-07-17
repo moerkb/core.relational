@@ -25,10 +25,10 @@
       :else false))
   (hashCode [this]
     (let [shead (sort (.head this))
-          sbody (.body (sort-rel (Relation. shead #{}) this))]
+          sbody (sort (map hash (.body (sort-rel (Relation. shead #{}) this))))]
       (+ (* 31 (+ (* 17 31) 
-                  (.hashCode shead))) 
-         (.hashCode sbody))))
+                  (hash shead))) 
+         (hash sbody))))
   
   clojure.lang.IKeywordLookup
   (getLookupThunk [this key]

@@ -40,3 +40,12 @@
              (= (.body r1) (.body (sort-rel r1 r2)))))
     (is (and (= (.head r2) (.head (sort-rel r2 r1)))
              (= (.body r2) (.body (sort-rel r2 r1)))))))
+
+(deftest count-rel-test
+  (is (= 0 (count (new-relation {}))))
+  (is (= 0 (count (new-relation nil))))
+  (is (= 0 (count (create-relation [:id :name] nil))))
+  (is (= 0 (count (create-relation [:id :name] #{}))))
+  
+  (is (= 2 (count (new-relation #{{:name "Arthur"} {:name "Betty"}}))))
+  (is (= 3 (count (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})))))

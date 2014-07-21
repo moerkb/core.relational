@@ -30,6 +30,10 @@
                   (hash shead))) 
          (hash sbody))))
   
+  clojure.lang.IPersistentCollection
+  (count [this]
+    (count (.body this)))
+  
   clojure.lang.IKeywordLookup
   (getLookupThunk [this key]
     (reify clojure.lang.ILookupThunk

@@ -5,20 +5,15 @@ QUESTIONS
 - When is a relation empty?
 
 TASKS
+- implement (>= r1 r2), then division
 - TABLE_DEE, TABLE_DUM
 - restrict functions: fn, list and special macro
 - saving relations (EDN, serialization)
 - extensible reader (ex. UUID) for relations?
-- join: just one case
 - order by (sorted set, return on (seq r))
 - standard functions for relations: contains?, count, reduce, ...
 - construct test data
-- better join algorithm
-- summarize
-- divide
-- tclose
 - SAP08: pretty printer fix
-- SAP09: nil
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists

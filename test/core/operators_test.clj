@@ -74,6 +74,20 @@
         (is (thrown? IllegalArgumentException (intersect empty-rel result)))
         (is (thrown? IllegalArgumentException (union rel (create-relation [:name] #{["Carl"]}))))))
     
+    (testing "Divide"
+      (is (= (new-relation {:vater "Moritz", :mutter "Melanie"})
+             (divide (create-relation [:vater :mutter :kind :alter]
+                                      #{["Franz" "Helga" "Harald" 5]
+                                        ["Franz" "Helga" "Maria" 4]
+                                        ["Franz" "Ursula" "Sabine" 2]
+                                        ["Moritz" "Melanie" "Gertrud" 7]
+                                        ["Moritz" "Melanie" "Maria" 4]
+                                        ["Moritz" "Melanie" "Sabine" 2]
+                                        ["Peter" "Christina" "Robert" 9]})
+                     (create-relation [:kind :alter]
+                                      #{["Maria" 4]
+                                        ["Sabine" 2]})))))
+    
     (testing "Tclose"
       (let [bin-rel (create-relation [:from :to] #{[1 2] [2 3] [2 4] [3 5] [3 6] [4 5] [6 7]})
             tclose_bin_rel (union bin-rel (create-relation [:from :to]

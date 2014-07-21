@@ -2,6 +2,7 @@ QUESTIONS
 - empty intersect / not -> universal relation -> how to represent?
 - another implementation for wrap? - ?
 - (empty? rel) - empty for TABLE_DEE or TABLE_DUM
+- When is a relation empty?
 
 TASKS
 - TABLE_DEE, TABLE_DUM

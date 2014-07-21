@@ -215,20 +215,20 @@
          ; add relation 2 value tuples to that of relation 1
          (create-relation new-head 
            ; tuple join
-           (set (map (fn [tuple-r1]
-                       (first (remove nil? (map (fn [tuple-r2]
-                                                  ; check equality of common attributes
-                                                  (if (every? true? (map (fn [pos-r1 pos-r2]
-                                                                           (= (nth tuple-r1 pos-r1)
-                                                                              (nth tuple-r2 pos-r2)))
-                                                                      common-positions-r1
-                                                                      common-positions-r2))
-                                                    ; join tuples
-                                                    (vec (concat tuple-r1 (map (fn [pos]
-                                                                                 (nth tuple-r2 pos))
-                                                                            div-positions-r2)))))
-                                                    (.body relation2)))))
-                        (.body relation1)))))
+           (set (apply concat (map (fn [tuple-r1]
+                                   (remove nil? (map (fn [tuple-r2]
+                                                     ; check equality of common attributes
+                                                     (if (every? true? (map (fn [pos-r1 pos-r2]
+                                                                              (= (nth tuple-r1 pos-r1)
+                                                                                 (nth tuple-r2 pos-r2)))
+                                                                         common-positions-r1
+                                                                         common-positions-r2))
+                                                       ; join tuples
+                                                       (vec (concat tuple-r1 (map (fn [pos]
+                                                                                    (nth tuple-r2 pos))
+                                                                               div-positions-r2)))))
+                                                       (.body relation2))))
+                                    (.body relation1))))))
        
        ; case 2: cross join
        (empty? common)
@@ -289,7 +289,13 @@
       (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
   (tclose [rel]
-    nil)
+    (let [temp (keyword (gensym))
+          [a1 a2] (:head rel)]
+      (loop [r rel]
+        (let [new-rel (union r (rename (compose r (rename r {a2 temp, a1 a2})) {temp a2}))]
+          (if (= r new-rel)
+              r
+              (recur new-rel))))))
   
   (group [relation group-map]
     (loop [rel relation, gmap group-map] 

@@ -74,6 +74,11 @@
         (is (thrown? IllegalArgumentException (intersect empty-rel result)))
         (is (thrown? IllegalArgumentException (union rel (create-relation [:name] #{["Carl"]}))))))
     
+    (testing "Difference"
+      (is (= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
+             (difference (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})
+                         (new-relation {:id 3 :name "Carl"})))))
+    
     (testing "Divide"
       (is (= (new-relation {:vater "Moritz", :mutter "Melanie"})
              (divide (create-relation [:vater :mutter :kind :alter]

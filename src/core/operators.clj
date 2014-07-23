@@ -69,6 +69,9 @@
   (intersect [relation1 relation2]
     "Tuples of the returned relation appear in both relations. They must be of
     the same type.")
+  (difference [relation1 relation2]
+    "If both relations have the same type, it returns relation1 without the
+    tuples of relation2.")
   (divide [relation1 relation2]
     "Divide relation1 by relation2.")
   (tclose [binary-relation]
@@ -288,8 +291,27 @@
                                (.body relation2)))))]
       (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
+  (difference [relation1 relation2]
+    (let [rel2-body (if (same-attr-order? relation1 relation2)
+                      ; same order: nothing todo
+                      (.body relation2)
+         
+                      ; different order: sort the second relation like the first one
+                      (set (let [sorter (sort-vec relation1 relation2)]
+                             (map (fn [tuple] 
+                                    (vec (map (fn [pos] 
+                                                (nth tuple pos)) 
+                                           sorter))) 
+                               (.body relation2)))))]
+      (create-relation (.head relation1) (clj-set/difference (.body relation1) rel2-body))))
+  
   (divide [relation1 relation2]
-    nil)
+    (let [r1-only-attrs (diverging-attr relation1 relation2)
+          r1-only (project relation1 r1-only-attrs)]
+      (difference r1-only 
+                  (project (difference (join r1-only relation2) 
+                                       relation1) 
+                           r1-only-attrs))))
   
   (tclose [relation]
     (let [temp (keyword (gensym))

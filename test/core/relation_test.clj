@@ -4,9 +4,9 @@
   (is (= (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})
          (new-relation #{ {:id 1 :name "Arthur"} {:id 2 :name "Betty"} }))))
 
-(deftest rel-to-hash-map-test
+(deftest rel-seq-test
   (is (= #{ {:id 1 :name "Arthur"} {:id 2 :name "Betty"} })
-         (rel-to-hash-map (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]}))))
+         (seq (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]}))))
 
 (deftest relation-test
   (testing "Relation creation"
@@ -41,11 +41,11 @@
     (is (and (= (.head r2) (.head (sort-rel r2 r1)))
              (= (.body r2) (.body (sort-rel r2 r1)))))))
 
-#_(deftest count-rel-test
-   (is (= 0 (count (new-relation {}))))
-   (is (= 0 (count (new-relation nil))))
-   (is (= 0 (count (create-relation [:id :name] nil))))
-   (is (= 0 (count (create-relation [:id :name] #{}))))
+(deftest count-rel-test
+  (is (= 0 (count (new-relation {}))))
+  (is (= 0 (count (new-relation nil))))
+  (is (= 0 (count (create-relation [:id :name] nil))))
+  (is (= 0 (count (create-relation [:id :name] #{}))))
   
-   (is (= 2 (count (new-relation #{{:name "Arthur"} {:name "Betty"}}))))
-   (is (= 3 (count (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})))))
+  (is (= 2 (count (new-relation #{{:name "Arthur"} {:name "Betty"}}))))
+  (is (= 3 (count (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})))))

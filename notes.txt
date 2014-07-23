@@ -5,7 +5,6 @@ QUESTIONS
 - When is a relation empty?
 
 TASKS
-- implement (>= r1 r2), then division
 - TABLE_DEE, TABLE_DUM
 - restrict functions: fn, list and special macro
 - saving relations (EDN, serialization)

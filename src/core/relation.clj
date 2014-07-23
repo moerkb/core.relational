@@ -30,9 +30,18 @@
                   (hash shead))) 
          (hash sbody))))
   
-  ;clojure.lang.IPersistentCollection
-  ;(count [this]
-  ;  (count (.body this)))
+  clojure.lang.Seqable
+  (seq [this] 
+    (map (fn [tuple]
+         (apply merge (map (fn [attr val]
+                             {attr val})
+                           (.head this)
+                           tuple)))
+       (.body this)))
+
+  clojure.lang.Counted
+  (count [this]
+    (count (.body this)))
   
   clojure.lang.IKeywordLookup
   (getLookupThunk [this key]
@@ -80,22 +89,12 @@
                              head))) 
                  tuples))))))
 
-(defn rel-to-hash-map
-  "Returns a relation as a set of hash maps."
-  [rel]
-  (set (map (fn [tuple]
-              (apply merge (map (fn [attr val]
-                                  {attr val})
-                                (.head rel)
-                                tuple)))
-            (.body rel))))
-
 (defmethod print-method Relation 
   [rel writer]
   #_(.write writer (str "Relation" \newline
                        "Header: " (.head rel) \newline 
-                       "Body:   " (rel-to-hash-map rel)))
-  (.write writer (str "Rel:" (rel-to-hash-map rel))))
+                       "Body:   " (seq rel)))
+  (.write writer (str "Rel:" (seq rel))))
 
 (defn create-relation 
   "Defines a new relation. Head is the structure in form

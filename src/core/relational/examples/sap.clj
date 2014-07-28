@@ -74,10 +74,18 @@ stop
 ; or
 ; select pno, pname, weight from p where weight in (select weight from p
 ;                                                   where color = 'Red')
-(restrict p (fn [t] 
-                (contains? (project 
-                             (restrict p (restr-pred (= "Red" :color))) 
-                             [:weight]) t)))
+(print-relation (restrict p '(or (= :weight 12) (= :weight 14) (= :weight 19))))
+
+(print-relation (project 
+                  (restrict p '(= "Red" :color)) 
+                  [:weight]))
+
+(print-relation (restrict p (fn [t] 
+                               (contains? (project (restrict p '(= "Red" :color)) [:weight]) 
+                                          {:weight (:weight t)}))))
+(print-relation (intersect p (restrict p '(= "Red" :color))))
+(filter #(contains? (restrict p '(= "Red" :color)) %)
+        (seq p))
 
 ; SAP08
 ; a) select * from s cross join p where s.city = p.city
@@ -115,12 +123,12 @@ stop
                         [:sname]))
 
 ; b) select sname from s where sno in (select sno from sp where pno = 'P2')
-(project (restrict s
-                   (restr-pred (contains? (project (restrict sp
-                                                             (restr-pred (= :pno "P2")))
-                                                   [:sno]) 
-                                          :sno)))
-         [sname])
+(print-relation (project (restrict s
+                                  #(contains? (project (restrict sp
+                                                                '(= :pno "P2"))
+                                                      [:sno]) 
+                                              {:sno (:sno %)}))
+                        [:sname]))
 
 ; SAP12
 ; select distinct sname from s join sp join p

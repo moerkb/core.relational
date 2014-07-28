@@ -43,6 +43,27 @@
   (count [this]
     (count (.body this)))
   
+  clojure.lang.IPersistentSet
+  (contains [this key]
+    (if (or (nil? key) (not (map? key)))
+        false
+        (contains? (set (seq this)) key)))
+  
+  (get [this key]
+    nil)
+  
+  (disjoin [this key]
+    nil)
+  
+  (cons [this o]
+    (seq o (seq this)))
+  
+  (empty [this]
+    (Relation. [] #{}))
+  
+  (equiv [this o]
+    (.equals this o))
+  
   clojure.lang.IKeywordLookup
   (getLookupThunk [this key]
     (reify clojure.lang.ILookupThunk

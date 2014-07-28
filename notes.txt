@@ -12,8 +12,8 @@ TASKS
 - order by (sorted set, return on (seq r))
 - standard functions for relations: contains?, count, reduce, ...
 - construct test data
-- SAP08: pretty printer fix
 - project produces lazyseq? (SAP04)
+- pprint with inner relations
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists

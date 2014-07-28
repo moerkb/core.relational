@@ -13,6 +13,7 @@ TASKS
 - standard functions for relations: contains?, count, reduce, ...
 - construct test data
 - SAP08: pretty printer fix
+- project produces lazyseq? (SAP04)
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists

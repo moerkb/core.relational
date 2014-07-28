@@ -2,7 +2,8 @@
   (:require [clojure.repl   :refer :all]
             [clojure.set    :as clj-set]
             [clojure.walk   :as walk]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [clojure.pprint :as pp]))
 
 ; entry point for core.relational; loads other classes
 

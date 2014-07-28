@@ -55,13 +55,13 @@ stop
 
 ; SAP04
 ; select sno from s where city = 'Paris' and status > 20
-(project (restrict s '(and (= :scity "Paris")
-                           (> :status 20))) 
-                   [:sno])
+(print-relation (project (restrict s '(and (= :scity "Paris")
+                                          (> :status 20))) 
+                                  [:sno]))
 
 ; SAP05
 ; select sno, status from s where city = 'Paris' order by status desc
-(project (restrict s '(= :scity "Paris")) [:sno :status])
+(print-relation (project (restrict s '(= :scity "Paris")) [:sno :status]))
 
 ; SAP06
 ; select pno, pname, weight from p where weight between 16 and 19
@@ -87,31 +87,32 @@ stop
 ; b) select * from s join sp using (sno) join p using (pno) 
 ;        where s.city = p.city
 
-(restrict (join p (join s sp))
-          '(= :scity :pcity))
+(print-relation (restrict (join p (join s sp))
+                         '(= :scity :pcity)))
 
 ; SAP09
 ; select distinct s.city as 'delivering city', p.city as 'bearing city'
 ;   from s join sp using (sno) join p using (pno)
 ; natural join cannot be used here!
 
-(project (join s (join p sp))
-        {:delivering-city :scity , :bearing-city :pcity})
+(print-relation (project (join s (join p sp))
+                       {:delivering-city :scity , :bearing-city :pcity}))
 
 ; SAP10
 ; select s1.sno, s2.sno from s as s1 cross join s as s2
 ;   where s1.city = s2.city and s1.sno < s2.sno
-(project (restrict (join (rename* s #"(.+)" "s1-$1") 
-                         (rename* s #"(.+)" "s2-$1"))
-                   '(and (= :s1-scity :s2-scity) 
-                         (< :s1-sno   :s2-sno)))
-         [:s1-sno1 :s2-sno2]) 
+(print-relation (project (restrict (join (rename* s #"(.+)" "s1-$1") 
+                                        (rename* s #"(.+)" "s2-$1"))
+                                  '(and (= :s1-scity :s2-scity) 
+                                        (< (Integer/parseInt (apply str (rest :s1-sno)))   
+                                           (Integer/parseInt (apply str (rest :s2-sno))))))
+                        [:s1-sno :s2-sno])) 
 
 ; SAP11
 ; a) select sname from s natural join sp where sp.pno = 'P2'
-(project (restrict (join s sp) 
-                   '(= :pno "P2")) 
-         [:sname])
+(print-relation (project (restrict (join s sp) 
+                                  '(= :pno "P2")) 
+                        [:sname]))
 
 ; b) select sname from s where sno in (select sno from sp where pno = 'P2')
 (project (restrict s
@@ -124,27 +125,25 @@ stop
 ; SAP12
 ; select distinct sname from s join sp join p
 ;   where p.color = 'Red'
-(project (restrict (join s (join sp p))
-                   '(= :color "Red"))
-         [:sname])
+(print-relation (project (restrict (join s (join sp p))
+                                  '(= :color "Red"))
+                        [:sname]))
 
 ; SAP13
 ; select count(sno) as Quantity from s
 (count s)
 ; resp.
-(new-relation {:Quantity (count s)})
-(create-realtion [:id :name] #{[5 "Foo"]})
-(new-relation #{{:id 5 :name "foo"} {:id 7 :name "bar"}})
+(print-relation (new-relation {:Quantity (count s)}))
 ; more precise
-(summarize s nil {:Quantity #(count %)})
+(print-relation (summarize s nil {:Quantity #(count %)}))
 
 ; SAP14
 ; select count(distinct sno) as Quantity from sp
-(count (project sp [sno]))
+(count (project sp [:sno]))
 
 ; SAP15
 ; select sum(qty) as "Number of part P2" from sp where pno = 'P2'
-(summarize (restrict sp '(= :pno "P2")) nil {:Qty #(reduce + (:qty %))})
+(print-relation (summarize (restrict sp '(= :pno "P2")) nil {:Qty #(reduce + (:qty %))}))
 
 ; SAP16
 ; select pno, sum(qty) as Quantity from sp group by pno order by pno
@@ -152,10 +151,9 @@ stop
 
 ; SAP17
 ; select pno from sp group by pno having count(*) > 1 order by pno
-(project (restrict (project (group sp {:grp #{:sno :qty}})
-                            {:pno :pno, :cnt '(reduce + :grp)})
-                   '(> :cnt 1))
-         [:pno])
+(print-relation (project (restrict (summarize sp [:pno] {:cnt #(count (:sno %))})
+                                  '(> :cnt 1))
+                        [:pno]))
 
 
 ; === RELATION VARIABLES ===

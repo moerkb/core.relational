@@ -56,7 +56,7 @@
     nil)
   
   (cons [this o]
-    (seq o (seq this)))
+    (conj (seq this) o))
   
   (empty [this]
     (Relation. [] #{}))

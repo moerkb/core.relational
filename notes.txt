@@ -9,11 +9,11 @@ TASKS
 - restrict functions: fn, list and special macro
 - saving relations (EDN, serialization)
 - extensible reader (ex. UUID) for relations?
-- order by (sorted set, return on (seq r))
+- order by - [attr asc/desc] and own comp fn (relation w/sorted set)
 - standard functions for relations: contains?, count, reduce, ...
 - construct test data
 - project produces lazyseq? (SAP04)
-- pprint with inner relations
+- rename new-relation and create-relation to newrel
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists

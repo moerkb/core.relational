@@ -16,6 +16,7 @@ TASKS
 - project produces lazyseq? (SAP04)
 - rename new-relation and create-relation to newrel
 - tclose with two attributes and automatic projection
+- relation.equals - trivial case number of tuples
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists

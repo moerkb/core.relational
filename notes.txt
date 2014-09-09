@@ -4,6 +4,9 @@ QUESTIONS
 - (empty? rel) - empty for TABLE_DEE or TABLE_DUM
 - When is a relation empty?
 
+- sequence order?
+- one chapter for three pages?
+
 TASKS
 - TABLE_DEE, TABLE_DUM
 - restrict functions: fn, list and special macro
@@ -17,6 +20,7 @@ TASKS
 - rename new-relation and create-relation to newrel
 - tclose with two attributes and automatic projection
 - relation.equals - trivial case number of tuples
+- counted - eager approach
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists

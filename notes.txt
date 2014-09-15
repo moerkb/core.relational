@@ -9,16 +9,15 @@ QUESTIONS
 - Why (:head r) and (:body r)?
 - Tclose - state attributes?
 - DEE/DUM example
+- operators produce lazy sequences
 
 TASKS
-- TABLE_DEE, TABLE_DUM
 - restrict functions: fn, list and special macro
 - saving relations (EDN, serialization)
 - extensible reader (ex. UUID) for relations?
 - order by - [attr asc/desc] and own comp fn (relation w/sorted set)
 - standard functions for relations: reduce, ...
 - construct test data
-- project produces lazyseq? (SAP04)
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists

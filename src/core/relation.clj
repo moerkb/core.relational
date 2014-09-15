@@ -108,3 +108,6 @@
   "Checks if the tuple is containing in the relation"
   [rel tuple]
   (some #(= % tuple) (seq rel)))
+
+(def table-dee "Represents true." (newrel [] #{[]}))
+(def table-dum "Represents false." (newrel [] #{}))

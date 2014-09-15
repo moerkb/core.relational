@@ -15,6 +15,9 @@
       
       (not= (count (.head this)) (count (.head obj)))
       false
+      
+      (not= (count (.body this)) (count (.body obj)))
+      false
 
       (and (= (.hashCode this) (.hashCode obj))
            (same-type? this obj)
@@ -53,7 +56,7 @@
           (let [target-pos (index-of (.head target) key)]
             (if (nil? target-pos)
                 nil
-                (vec (map (fn [t]
+                (set (map (fn [t]
                            (get t target-pos))
                          (.body target))))))))))
 

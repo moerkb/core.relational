@@ -3,7 +3,8 @@
             [clojure.set    :as clj-set]
             [clojure.walk   :as walk]
             [clojure.string :as str]
-            [clojure.pprint :as pp]))
+            [clojure.pprint :as pp]
+            [clojure.edn    :as edn]))
 
 ; entry point for core.relational; loads other classes
 

@@ -111,3 +111,13 @@
 
 (def table-dee "Represents true." (newrel [] #{[]}))
 (def table-dum "Represents false." (newrel [] #{}))
+
+(defn save-rel
+  "Saves the relation in the specified file."
+  [rel file]
+  (spit file (prn-str (set rel))))
+
+(defn load-rel
+  "Loads a relation from the specified file."
+  [file]
+  (newrel (edn/read-string (slurp file))))

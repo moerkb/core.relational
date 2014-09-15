@@ -43,27 +43,6 @@
   (count [this]
     (count (.body this)))
   
-  clojure.lang.IPersistentSet
-  (contains [this key]
-    (if (or (nil? key) (not (map? key)))
-        false
-        (contains? (set (seq this)) key)))
-  
-  (get [this key]
-    nil)
-  
-  (disjoin [this key]
-    nil)
-  
-  (cons [this o]
-    (conj (seq this) o))
-  
-  (empty [this]
-    (Relation. [] #{}))
-  
-  (equiv [this o]
-    (.equals this o))
-  
   clojure.lang.IKeywordLookup
   (getLookupThunk [this key]
     (reify clojure.lang.ILookupThunk
@@ -134,3 +113,8 @@
   Nowhere may nil appear! (this is not SQL)"
   [head body]
   (Relation. head body))
+
+(defn in?
+  "Checks if the tuple is containing in the relation"
+  [rel tuple]
+  (some #(= % tuple) (seq rel)))

@@ -81,10 +81,10 @@ stop
                   [:weight]))
 
 (print-relation (restrict p (fn [t] 
-                               (contains? (project (restrict p '(= "Red" :color)) [:weight]) 
+                               (in? (project (restrict p '(= "Red" :color)) [:weight]) 
                                           {:weight (:weight t)}))))
 (print-relation (intersect p (restrict p '(= "Red" :color))))
-(filter #(contains? (restrict p '(= "Red" :color)) %)
+(filter #(in? (restrict p '(= "Red" :color)) %)
         (seq p))
 
 ; SAP08
@@ -124,10 +124,11 @@ stop
 
 ; b) select sname from s where sno in (select sno from sp where pno = 'P2')
 (print-relation (project (restrict s
-                                  #(contains? (project (restrict sp
-                                                                '(= :pno "P2"))
-                                                      [:sno]) 
-                                              {:sno (:sno %)}))
+                                   
+                                  '(in? (apply concat (map vals (seq (project (restrict sp
+                                                                                       '(= :pno "P2"))
+                                                                             [:sno])))) 
+                                              :sno))
                         [:sname]))
 
 ; SAP12

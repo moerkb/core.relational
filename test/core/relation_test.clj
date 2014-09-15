@@ -31,10 +31,10 @@
 
 (deftest contains-rel-test
   (let [r (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})]
-    (is (contains? r {:id 1, :name "Arthur"}))
-    (is (contains? r {:name "Betty", :id 2}))
-    (is (not (contains? r {:name "Arthur", :id 2})))
-    (is (not (contains? r {:name "Carl", :id 3})))))
+    (is (in? r {:id 1, :name "Arthur"}))
+    (is (in? r {:name "Betty", :id 2}))
+    (is (not (in? r {:name "Arthur", :id 2})))
+    (is (not (in? r {:name "Carl", :id 3})))))
 
 (deftest sort-rel-test
   (let [r1 (create-relation [:id :name] #{[1 "Arthur"] [2 "Betty"]})

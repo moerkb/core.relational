@@ -10,13 +10,15 @@ QUESTIONS
 - Tclose - state attributes?
 - DEE/DUM example
 - operators produce lazy sequences
+- vectors instead of hash maps: better?
+- restrict tuple functions: how to get (:attr t)? (SAP11b)
 
 TASKS
 - restrict functions: fn, list and special macro
 - saving relvars and databases
 - order by - [attr asc/desc] and own comp fn (relation w/sorted set)
-- standard functions for relations: reduce, ...
-- construct test data
+- test data
+- relvars
 
 NOTES
-- TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: extists
+- TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: exists

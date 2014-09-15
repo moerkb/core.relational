@@ -65,7 +65,7 @@
   of that function.
 
   Example:
-    (make-fun (create-relation [:id :name] #{...})
+    (make-fun (newrel [:id :name] #{...})
               '(= 2 :id))
     ; returns a function like
     (fn [t] (= 2 (get t 0)))"

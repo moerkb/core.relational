@@ -150,14 +150,14 @@
     (Relation. (replace smap (.head relation)) (.body relation)))
   
   (rename* [relation match-exp replace-str]
-    (create-relation (vec (map (fn [a] 
+    (newrel (vec (map (fn [a] 
                                  (-> a str (subs 1) (str/replace match-exp replace-str) keyword))
                                (.head relation)))
                      (.body relation)))
   
   (restrict [relation predicate-list]
     (let [f (make-fun relation predicate-list)]
-      (create-relation (.head relation)
+      (newrel (.head relation)
                        (set (filter f (.body relation))))))
   
   (project [relation attributes]
@@ -170,7 +170,7 @@
             body (set (map (fn [t]
                              (vec (map #(% t) pos-funs)))
                            (.body relation)))]
-        (create-relation head body))
+        (newrel head body))
       
       ; attributes is a set/vector/list
       (let [; find positions of attributes that shall be shown
@@ -180,14 +180,14 @@
                                    (.body relation)))
             body (if (every? empty? value-tuples) #{} value-tuples)
             head (vec (map #(get (.head relation) %) positions))] 
-        (create-relation head body))))
+        (newrel head body))))
   
   (project- [relation attributes]
     (let [pos (remove nil? (map #(if (index-of attributes %)
                                     nil
                                     (index-of (.head relation) %)) 
                                 (.head relation)))]
-      (create-relation (vec (map #(get (.head relation) %) pos))
+      (newrel (vec (map #(get (.head relation) %) pos))
                        (set (map (fn [t]
                                    (vec (map #(get t %) pos)))
                                  (.body relation))))))
@@ -195,7 +195,7 @@
   (add-to [relation extend-map]
     (let [new-attrs (keys extend-map)
           new-val-funs (map (fn [f] (make-fun relation f)) (vals extend-map))]
-      (create-relation (vec (concat (.head relation) new-attrs))
+      (newrel (vec (concat (.head relation) new-attrs))
                        (set (map (fn [t]
                                    (vec (concat t (map #(% t) new-val-funs))))
                                  (.body relation))))))
@@ -216,7 +216,7 @@
              common-positions-r2 (map #(index-of (.head relation2) %) common)
              div-positions-r2 (map #(index-of (.head relation2) %) div-r2)]
          ; add relation 2 value tuples to that of relation 1
-         (create-relation new-head 
+         (newrel new-head 
            ; tuple join
            (set (apply concat (map (fn [tuple-r1]
                                    (remove nil? (map (fn [tuple-r2]
@@ -236,7 +236,7 @@
        ; case 2: cross join
        (empty? common)
        
-       (create-relation (vec (concat (.head relation1) (.head relation2)))
+       (newrel (vec (concat (.head relation1) (.head relation2)))
          (set (map vec (apply concat (map (fn [tuple-r1]
                                            (map (fn [tuple-r2]
                                                  (concat tuple-r1 tuple-r2))
@@ -272,7 +272,7 @@
                                                 (nth tuple pos)) 
                                            sorter))) 
                                (.body relation2)))))]
-      (create-relation (.head relation1) (clj-set/union (.body relation1) rel2-body))))
+      (newrel (.head relation1) (clj-set/union (.body relation1) rel2-body))))
   
   (intersect [relation1 relation2]
     (when-not (same-type? relation1 relation2)
@@ -289,7 +289,7 @@
                                                 (nth tuple pos)) 
                                            sorter))) 
                                (.body relation2)))))]
-      (create-relation (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
+      (newrel (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
   (difference [relation1 relation2]
     (let [rel2-body (if (same-attr-order? relation1 relation2)
@@ -303,7 +303,7 @@
                                                 (nth tuple pos)) 
                                            sorter))) 
                                (.body relation2)))))]
-      (create-relation (.head relation1) (clj-set/difference (.body relation1) rel2-body))))
+      (newrel (.head relation1) (clj-set/difference (.body relation1) rel2-body))))
   
   (divide [relation1 relation2]
     (let [r1-only-attrs (diverging-attr relation1 relation2)
@@ -338,11 +338,11 @@
               new-header (conj (vec (map #(get (.head rel) %) remaining)) alias)
               tuples-rel (apply merge-with union (map (fn [tuple]
                                                         {(vec (map (fn [pos] (get tuple pos)) remaining))
-                                                         (create-relation attributes #{(vec (map #(get tuple %)
+                                                         (newrel attributes #{(vec (map #(get tuple %)
                                                                                                       positions))})})
                                                    (.body rel)))
               new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
-        (recur (create-relation new-header new-body)
+        (recur (newrel new-header new-body)
                (next gmap))))))
   
   (ungroup [relation attributes]
@@ -360,7 +360,7 @@
                                                        (concat beginning inner-t))
                                                      (-> t (nth attr-pos) .body))))
                                             (.body rel)))]
-            (recur (create-relation new-head (set (map vec new-body))) 
+            (recur (newrel new-head (set (map vec new-body))) 
                    (next attrs))))))
   
   (wrap [relation wrap-map]
@@ -377,7 +377,7 @@
                                                                         (nth t %)) 
                                                              old-pos))))
                                    (.body rel)))]
-            (recur (create-relation new-head new-body)
+            (recur (newrel new-head new-body)
                    (next wrapper))))))
   
   (unwrap [relation attributes]
@@ -393,7 +393,7 @@
                                      (vec (concat (map #(nth t %) rem-pos)
                                                   (map #(get (nth t attr-pos) %) new-attrs))))
                                    (.body rel)))]
-            (recur (create-relation new-head new-body)
+            (recur (newrel new-head new-body)
                    (next attrs))))))
   
   (summarize [relation group-by sum-map]
@@ -413,11 +413,11 @@
                                            (let [new-val (fun (nth t inner-rel-index))] 
                                              (conj t new-val)))
                                          (.body new-rel)))]
-                  (recur (create-relation new-head new-body) 
+                  (recur (newrel new-head new-body) 
                          (next summap)))))
           
           ; no group by attributes
-          (loop [new-rel (create-relation [] #{[]})
+          (loop [new-rel (newrel [] #{[]})
                  summap sum-map]
             (if (nil? summap)
                 new-rel

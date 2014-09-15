@@ -76,46 +76,33 @@
                                         (get t a)) sorter))) (.body rel2)))))
       )))
 
-(defn new-relation
-  "Give value tuples as a set of hash maps and it creates the relation. If it
-  is only one tuple, you may give it as a hash map directly instead as a set."
-  [tuple-set]
-  (let [tuples (if (or (empty? tuple-set) (nil? tuple-set))
-                 #{}
-                 (if (map? tuple-set) #{tuple-set} tuple-set))]
-    (let [head (vec (keys (first tuples)))]
-     (Relation. 
-       head
-       (set (map (fn [tuple]
-                   (vec (map (fn [attr]
-                               (get tuple attr))
-                             head))) 
-                 tuples))))))
-
 (defmethod print-method Relation 
   [rel writer]
-  #_(.write writer (str "Relation" \newline
-                       "Header: " (.head rel) \newline 
-                       "Body:   " (seq rel)))
   (.write writer (str "Rel:" (seq rel))))
 
-(defn create-relation 
-  "Defines a new relation. Head is the structure in form
-  [:attribute1, :attribute2, ...] and body of the form #{ [value1-1 value1-2 ...] 
-  [value2-1 value2-2 ...] ...}.
+(defn newrel 
+  "Creates a relation in three possible ways:
 
-  Example:
-  (relation
-    [:id :name]
-    #{ [1 \"Arthur\"] [2 \"Betty\"] })
+  (1) Given as a set of hash maps: #{ {:id 1, :name \"Arthur\"} {:id 2, :name \"Betty\"} }
+  (2) Given as a single hash map: {:id 1, :name \"Arthur\"}
+  (3) Given as head and body: [:id :name] #{ [1 \"Arthur\"] [2 \"Betty\"} } 
 
-  head: vector of symbols
-  body: set of vectors (tuples) that contain values (arbitrary datatype)
-        or empty set
-
-  Nowhere may nil appear! (this is not SQL)"
-  [head body]
-  (Relation. head body))
+  Never use nil!"
+  ([head body]
+    (Relation. head body))
+  
+  ([tuple-set]
+    (let [tuples (if (or (empty? tuple-set) (nil? tuple-set))
+                   #{}
+                   (if (map? tuple-set) #{tuple-set} tuple-set))]
+      (let [head (vec (keys (first tuples)))]
+       (Relation. 
+         head
+         (set (map (fn [tuple]
+                     (vec (map (fn [attr]
+                                 (get tuple attr))
+                               head))) 
+                   tuples)))))))
 
 (defn in?
   "Checks if the tuple is containing in the relation"

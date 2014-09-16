@@ -12,11 +12,11 @@ QUESTIONS
 - operators produce lazy sequences
 - vectors instead of hash maps: better?
 - restrict tuple functions: how to get (:attr t)? (SAP11b)
+- order by just one attribute?
 
 TASKS
 - restrict functions: fn, list and special macro
 - saving relvars and databases
-- order by - [attr asc/desc] and own comp fn (relation w/sorted set)
 - test data
 - relvars
 

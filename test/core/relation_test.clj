@@ -56,3 +56,14 @@
   
   (is (= 2 (count (newrel #{{:name "Arthur"} {:name "Betty"}}))))
   (is (= 3 (count (newrel [:id :name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})))))
+
+(deftest order-test
+  (let [r (newrel [:id :name] #{[1 "Arthur"] [4 "Betty"] [3 "Carl"]})]
+    (is (= (seq [{:id 1, :name "Arthur"} {:id 4, :name "Betty"} {:id 3, :name "Carl"}])
+           (seq (order r {:name :asc}))))
+    (is (= (reverse (seq [{:id 1, :name "Arthur"} {:id 4, :name "Betty"} {:id 3, :name "Carl"}]))
+           (seq (order r {:name :desc}))))
+    (is (= (seq [{:id 1, :name "Arthur"} {:id 3, :name "Carl"} {:id 4, :name "Betty"} ])
+           (seq (order r {:id :asc}))))
+    (is (= (reverse (seq [{:id 1, :name "Arthur"} {:id 3, :name "Carl"} {:id 4, :name "Betty"} ]))
+           (seq (order r {:id :desc}))))))

@@ -155,22 +155,20 @@
                                (.head relation)))
                      (.body relation)))
   
-  (restrict [relation predicate-list]
-    (let [f (make-fun relation predicate-list)]
-      (newrel (.head relation)
-                       (set (filter f (.body relation))))))
+  (restrict [relation predicate]
+    (newrel (set (filter predicate (seq relation)))))
   
   (project [relation attributes]
     (if (map? attributes)
       ; attributes is a hash map
       (let [head (vec (keys attributes))
             ; seq with functions that return the correct value for the position
-            pos-funs (map (fn [elem] (make-fun relation elem))
-                          (vals attributes))
-            body (set (map (fn [t]
-                             (vec (map #(% t) pos-funs)))
-                           (.body relation)))]
-        (newrel head body))
+            new-rel (set (map (fn [t]
+                                (apply merge (map (fn [[k v]] {k (if (or (keyword? v) (fn? v)) 
+                                                                   (v t)
+                                                                   v)}) attributes)))
+                              (seq relation)))]
+        (newrel new-rel))
       
       ; attributes is a set/vector/list
       (let [; find positions of attributes that shall be shown
@@ -193,12 +191,11 @@
                                  (.body relation))))))
   
   (add-to [relation extend-map]
-    (let [new-attrs (keys extend-map)
-          new-val-funs (map (fn [f] (make-fun relation f)) (vals extend-map))]
-      (newrel (vec (concat (.head relation) new-attrs))
-                       (set (map (fn [t]
-                                   (vec (concat t (map #(% t) new-val-funs))))
-                                 (.body relation))))))
+    (newrel (set (map (fn [t]
+                        (apply merge t (map (fn [[k v]] {k (if (or (keyword? v) (fn? v)) 
+                                                             (v t)
+                                                             v)}) extend-map)))
+                      (seq relation)))))
   
   (join [relation1 relation2]
     (let [common (common-attr relation1 relation2)

@@ -25,7 +25,7 @@
     
     (testing "Restrict"
       (is (= (newrel [:id :name] #{[2 "Betty"]})
-             (restrict rel '(= :id 2)))))
+             (restrict rel (fn [t] (= (:id t) 2))))))
     
     (testing "Projection with collection"
       (is (= rel (project rel [:id :name])))
@@ -40,7 +40,7 @@
       (is (= (newrel [:pre-name] #{["Arthur"] ["Betty"]})
              (project rel {:pre-name :name})))
       (is (= (newrel [:new-id :pre-name] #{[2 "Arthur"] [3 "Betty"]})
-             (project rel {:new-id '(inc :id), :pre-name :name}))))
+             (project rel {:new-id (fn [t] (inc (:id t))), :pre-name :name}))))
     
     (testing "Project- (remove)"
       (is (= (newrel [:name] #{["Arthur"] ["Betty"]})
@@ -49,7 +49,7 @@
     (testing "Add-to (extend)"
       (is (= (newrel [:id :name :status] 
                               #{[1 "Arthur" 20] [2 "Betty" 40]})
-             (add-to rel {:status '(* 20 :id)})))
+             (add-to rel {:status (fn [t] (* 20 (:id t)))})))
       (is (= (newrel [:id :name :status]
                               #{[1 "Arthur" 50] [2 "Betty" 50]})
              (add-to rel {:status 50}))))

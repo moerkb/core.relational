@@ -2,11 +2,10 @@ QUESTIONS
 
 TASKS
 - compare vector implementation with hash map implementation
-- restrict functions: fn, special macro; tuple functions: argument is hash map
+- macro: fn that saves the source code
 - saving relvars and databases
 - test data (namespaces: seesaw?)
 - relvars
-- (scheme r) and (body r), remove (:head r) and (:body r)
 
 NOTES
 - TABLE_DEE = true  (empty tuple)

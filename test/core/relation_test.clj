@@ -36,6 +36,16 @@
     (is (not (in? r {:name "Arthur", :id 2})))
     (is (not (in? r {:name "Carl", :id 3})))))
 
+(deftest scheme-test
+  (is (= [] (scheme table-dee)))
+  (is (= [] (scheme table-dum)))
+  (is (= [:id :name] (scheme (newrel [:id :name] #{[1 "Arthur"]})))))
+
+(deftest body-test
+  (is (= #{[]} (body table-dee)))
+  (is (= #{} (body table-dum)))
+  (is (= #{[1 "Arthur"] [2 "Betty"]} (body (newrel [:id :name] #{[1 "Arthur"] [2 "Betty"]})))))
+
 (deftest sort-rel-test
   (let [r1 (newrel [:id :name] #{[1 "Arthur"] [2 "Betty"]})
         r2 (newrel [:name :id] #{["Arthur" 1] ["Betty" 2]})]

@@ -7,7 +7,7 @@ TASKS
 - test data (namespaces: seesaw?)
 - relvars
 - (scheme r) and (body r), remove (:head r) and (:body r)
-- tostring: return content of relation, not "LazySeq"
 
 NOTES
-- TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: exists
+- TABLE_DEE = true  (empty tuple)
+- TABLE_DUM = false (empty set)

@@ -315,7 +315,7 @@
   
   (tclose [relation]
     (let [temp (keyword (gensym))
-          [a1 a2] (:head relation)]
+          [a1 a2] (.head relation)]
       (loop [r relation]
         (let [new-rel (union r (rename (compose r (rename r {a2 temp, a1 a2})) {temp a2}))]
           (if (= r new-rel)

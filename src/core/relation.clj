@@ -50,15 +50,24 @@
   (getLookupThunk [this key]
     (reify clojure.lang.ILookupThunk
       (get [_ target]
-        (case key
-          :body (.body this)
-          :head (.head this)
-          (let [target-pos (index-of (.head target) key)]
-            (if (nil? target-pos)
-                nil
-                (set (map (fn [t]
-                           (get t target-pos))
-                         (.body target))))))))))
+        (let [target-pos (index-of (.head target) key)]
+          (if (nil? target-pos)
+              nil
+              (set (map (fn [t]
+                         (get t target-pos))
+                       (.body target)))))))))
+
+(defn scheme 
+  "Returns the scheme (= list of attributes) of the relation. The order is the
+  same as in the internal representation."
+  [relation]
+  (.head relation))
+
+(defn body
+  "Returns the set of value tuples of the relation. Each tuple is a vector with
+  its order being the same as in (scheme relation)."
+  [relation]
+  (.body relation))
 
 (defn sort-rel
   "If both relations have the same type, a relation equal two rel2 is returned

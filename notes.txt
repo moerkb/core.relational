@@ -1,24 +1,13 @@
 QUESTIONS
-- empty intersect / not -> universal relation -> how to represent?
-- another implementation for wrap? - ?
-- (empty? rel) - empty for TABLE_DEE or TABLE_DUM
-- When is a relation empty?
-
-- sequence order?
-- one chapter for three pages?
-- Why (:head r) and (:body r)?
-- Tclose - state attributes?
-- DEE/DUM example
-- operators produce lazy sequences
-- vectors instead of hash maps: better?
-- restrict tuple functions: how to get (:attr t)? (SAP11b)
-- order by just one attribute?
 
 TASKS
-- restrict functions: fn, list and special macro
+- compare vector implementation with hash map implementation
+- restrict functions: fn, special macro; tuple functions: argument is hash map
 - saving relvars and databases
-- test data
+- test data (namespaces: seesaw?)
 - relvars
+- (scheme r) and (body r), remove (:head r) and (:body r)
+- tostring: return content of relation, not "LazySeq"
 
 NOTES
 - TABLE_DEE, TABLE_DUM - true, false - empty tuple, empty set - SQL: exists

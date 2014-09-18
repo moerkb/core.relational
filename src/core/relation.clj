@@ -78,7 +78,7 @@
 
 (defmethod print-method Relation 
   [rel writer]
-  (.write writer (str "Rel:" (seq rel))))
+  (.write writer (str "Rel:" (pr-str (set (seq rel))))))
 
 (defn newrel 
   "Creates a relation in three possible ways:

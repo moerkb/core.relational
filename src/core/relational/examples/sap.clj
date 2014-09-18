@@ -119,16 +119,15 @@ stop
 ; SAP11
 ; a) select sname from s natural join sp where sp.pno = 'P2'
 (print-relation (project (restrict (join s sp) 
+                                   (fn [t] (= (:pno t) "P2"))
                                   '(= :pno "P2")) 
                         [:sname]))
 
 ; b) select sname from s where sno in (select sno from sp where pno = 'P2')
 (print-relation (project (restrict s
-                                   
-                                  '(in? (apply concat (map vals (seq (project (restrict sp
-                                                                                       '(= :pno "P2"))
-                                                                             [:sno])))) 
-                                              :sno))
+                                   (fn [t] (in? :sno))
+                                  '(in? (project (restrict sp '(= :pno "P2")) [:sno])
+                                        :sno))
                         [:sname]))
 
 ; SAP12
@@ -214,4 +213,3 @@ stop
 ; drop table SCopy;
 ; drop table PCopy;
 ; drop table Quantity;
-

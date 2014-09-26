@@ -327,10 +327,8 @@
               positions (map (fn [attr]
                              (index-of (.head rel) attr))
                         attributes)
-              remaining (filter (fn [pos]
-                                  (if (some #(= pos %) positions)
-                                    false
-                                    true))
+              remaining (remove (fn [pos]
+                                  (some #(= pos %) positions))
                           (range 0 (count (.head rel))))
               new-header (conj (vec (map #(get (.head rel) %) remaining)) alias)
               tuples-rel (apply merge-with union (map (fn [tuple]

@@ -17,3 +17,4 @@
 (load "tools")
 (load "operators")
 (load "printer")
+(load "relvar")

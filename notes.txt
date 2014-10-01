@@ -1,4 +1,5 @@
 QUESTIONS
+- validate functions of atom - how to reference meta data of atom?
 
 TASKS
 - compare vector implementation with hash map implementation

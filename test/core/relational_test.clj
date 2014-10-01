@@ -6,3 +6,4 @@
 (load "tools_test")
 (load "operators_test")
 (load "printer_test")
+(load "relvar_test")

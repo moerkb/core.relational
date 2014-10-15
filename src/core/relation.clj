@@ -35,12 +35,17 @@
   
   clojure.lang.Seqable
   (seq [this] 
-    (map (fn [tuple]
-         (apply merge (map (fn [attr val]
-                             {attr val})
-                           (.head this)
-                           tuple)))
-       (.body this)))
+    (if (= #{[]} (.body this))
+      ; table dee
+      (seq #{{}})
+      
+      ; just make a sequence
+      (map (fn [tuple]
+           (apply merge (map (fn [attr val]
+                               {attr val})
+                             (.head this)
+                             tuple)))
+       (.body this))))
 
   clojure.lang.Counted
   (count [this]

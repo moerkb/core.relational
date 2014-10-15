@@ -31,10 +31,8 @@
       (is (= rel (project rel [:id :name])))
       (is (= (newrel [:name] #{["Arthur"] ["Betty"]})
             (project rel [:name])))
-      (is (= (newrel [] #{})
-            (project rel [])))
-      (is (= (newrel {}) (project rel [:foo])))
-      (is (= (newrel nil) (project rel [:foo]))))
+      (is (= table-dee (project rel [])))
+      (is (= table-dee (project rel [:foo]))))
     
     (testing "Projection with hash map"
       (is (= (newrel [:pre-name] #{["Arthur"] ["Betty"]})

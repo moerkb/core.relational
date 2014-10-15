@@ -172,13 +172,12 @@
       
       ; attributes is a set/vector/list
       (let [; find positions of attributes that shall be shown
-            positions (remove nil? (map #(index-of (.head relation) %) attributes))
-            ; "take" just these attributes
-            value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
-                                   (.body relation)))
-            body (if (every? empty? value-tuples) #{} value-tuples)
-            head (vec (map #(get (.head relation) %) positions))] 
-        (newrel head body))))
+           positions (remove nil? (map #(index-of (.head relation) %) attributes))
+           ; "take" just these attributes
+           value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
+                                 (.body relation)))
+           head (vec (map #(get (.head relation) %) positions))] 
+        (newrel head value-tuples))))
   
   (project- [relation attributes]
     (let [pos (remove nil? (map #(if (index-of attributes %)

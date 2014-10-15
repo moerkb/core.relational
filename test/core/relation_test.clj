@@ -77,3 +77,12 @@
            (seq (order r {:id :asc}))))
     (is (= (reverse (seq [{:id 1, :name "Arthur"} {:id 3, :name "Carl"} {:id 4, :name "Betty"} ]))
            (seq (order r {:id :desc}))))))
+
+(deftest dee-dum-test
+  (let [r (newrel {:id 1 :name "Arthur"})
+        r-true  (project (restrict r #(= "Arthur" (:name %))) nil)
+        r-false (project (restrict r #(= "Betty"  (:name %))) nil)]
+    (is (=    table-dee r-true))
+    (is (not= table-dum r-true))
+    (is (=    table-dum r-false))
+    (is (not= table-dee r-false))))

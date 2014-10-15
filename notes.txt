@@ -1,12 +1,16 @@
 QUESTIONS
 - validate functions of atom - how to reference meta data of atom?
+- optimisation?
+- appendix? glossary?
+- indexes?
+- constraints between relvars?
 
 TASKS
 - compare vector implementation with hash map implementation
 - macro: fn that saves the source code
 - saving relvars and databases
-- test data (namespaces: seesaw?)
 - relvars
+- indexes
 
 NOTES
 - TABLE_DEE = true  (empty tuple)

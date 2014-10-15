@@ -1,13 +1,13 @@
 QUESTIONS
-- validate functions of atom - how to reference meta data of atom?
+- validate functions of atom - how to reference meta data of own atom?
 - optimisation?
 - appendix? glossary?
 - indexes?
 - constraints between relvars?
+- relfn: quotes? save arg list?
 
 TASKS
 - compare vector implementation with hash map implementation
-- macro: fn that saves the source code
 - saving relvars and databases
 - relvars
 - indexes

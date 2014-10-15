@@ -1,5 +1,9 @@
 (ns core.relational-test)
 
+(deftest relfn-test
+  (is (= '(= 20 (:status t))
+         (:source (meta (relfn '[t] '(= 20 (:status t))))))))
+
 (deftest same-type?-test
   (testing "Comparing types of two relations"
     (let [rel1 (newrel [:id :name] #{})

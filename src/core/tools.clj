@@ -1,6 +1,13 @@
 (ns core.relational)
 ; general tools for working with relations
 
+(defmacro relfn 
+  "Behaves like fn, but stores the source code in the metadata to allow 
+  optimisation."
+  [args code]
+  `(with-meta (fn [~@args] ~code)
+     {:source ~code}))
+
 (defn common-attr
   "Returns a vector of all attributes that both relations have in common.
   Order is that in relation 1."

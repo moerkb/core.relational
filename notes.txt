@@ -5,6 +5,14 @@ QUESTIONS
 - indexes?
 - constraints between relvars?
 - relfn: quotes? save arg list?
+- transactions
+- verdict?
+- related work - ok?
+- tuple type? (Menge der Attributnamen?)
+- Tabellarische Darstellung von Relationen
+- summariZe - summariSe
+- Wofür braucht man eigentlich: Group, Wrap, Tclose, Compose?
+- Transaktion-System durch Refs?
 
 TASKS
 - compare vector implementation with hash map implementation

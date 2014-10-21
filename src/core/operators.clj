@@ -150,13 +150,13 @@
     (Relation. (replace smap (.head relation)) (.body relation)))
   
   (rename* [relation match-exp replace-str]
-    (newrel (vec (map (fn [a] 
+    (rel (vec (map (fn [a] 
                                  (-> a str (subs 1) (str/replace match-exp replace-str) keyword))
                                (.head relation)))
                      (.body relation)))
   
   (restrict [relation predicate]
-    (newrel (set (filter predicate (seq relation)))))
+    (rel (set (filter predicate (seq relation)))))
   
   (project [relation attributes]
     (if (map? attributes)
@@ -168,7 +168,7 @@
                                                                    (v t)
                                                                    v)}) attributes)))
                               (seq relation)))]
-        (newrel new-rel))
+        (rel new-rel))
       
       ; attributes is a set/vector/list
       (let [; find positions of attributes that shall be shown
@@ -177,20 +177,20 @@
            value-tuples (set (map #(vec (map (fn [p] (nth % p)) positions)) 
                                  (.body relation)))
            head (vec (map #(get (.head relation) %) positions))] 
-        (newrel head value-tuples))))
+        (rel head value-tuples))))
   
   (project- [relation attributes]
     (let [pos (remove nil? (map #(if (index-of attributes %)
                                     nil
                                     (index-of (.head relation) %)) 
                                 (.head relation)))]
-      (newrel (vec (map #(get (.head relation) %) pos))
+      (rel (vec (map #(get (.head relation) %) pos))
                        (set (map (fn [t]
                                    (vec (map #(get t %) pos)))
                                  (.body relation))))))
   
   (add-to [relation extend-map]
-    (newrel (set (map (fn [t]
+    (rel (set (map (fn [t]
                         (apply merge t (map (fn [[k v]] {k (if (or (keyword? v) (fn? v)) 
                                                              (v t)
                                                              v)}) extend-map)))
@@ -212,7 +212,7 @@
              common-positions-r2 (map #(index-of (.head relation2) %) common)
              div-positions-r2 (map #(index-of (.head relation2) %) div-r2)]
          ; add relation 2 value tuples to that of relation 1
-         (newrel new-head 
+         (rel new-head 
            ; tuple join
            (set (apply concat (map (fn [tuple-r1]
                                    (remove nil? (map (fn [tuple-r2]
@@ -232,7 +232,7 @@
        ; case 2: cross join
        (empty? common)
        
-       (newrel (vec (concat (.head relation1) (.head relation2)))
+       (rel (vec (concat (.head relation1) (.head relation2)))
          (set (map vec (apply concat (map (fn [tuple-r1]
                                            (map (fn [tuple-r2]
                                                  (concat tuple-r1 tuple-r2))
@@ -268,7 +268,7 @@
                                                 (nth tuple pos)) 
                                            sorter))) 
                                (.body relation2)))))]
-      (newrel (.head relation1) (clj-set/union (.body relation1) rel2-body))))
+      (rel (.head relation1) (clj-set/union (.body relation1) rel2-body))))
   
   (intersect [relation1 relation2]
     (when-not (same-type? relation1 relation2)
@@ -285,7 +285,7 @@
                                                 (nth tuple pos)) 
                                            sorter))) 
                                (.body relation2)))))]
-      (newrel (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
+      (rel (.head relation1) (clj-set/intersection (.body relation1) rel2-body))))
   
   (difference [relation1 relation2]
     (let [rel2-body (if (same-attr-order? relation1 relation2)
@@ -299,7 +299,7 @@
                                                 (nth tuple pos)) 
                                            sorter))) 
                                (.body relation2)))))]
-      (newrel (.head relation1) (clj-set/difference (.body relation1) rel2-body))))
+      (rel (.head relation1) (clj-set/difference (.body relation1) rel2-body))))
   
   (divide [relation1 relation2]
     (let [r1-only-attrs (diverging-attr relation1 relation2)
@@ -319,85 +319,85 @@
               (recur new-rel))))))
   
   (group [relation group-map]
-    (loop [rel relation, gmap group-map] 
+    (loop [r relation, gmap group-map] 
       (if (nil? gmap)
-        rel
+        r
         (let [[alias attributes] (first gmap)
               positions (map (fn [attr]
-                             (index-of (.head rel) attr))
+                             (index-of (.head r) attr))
                         attributes)
               remaining (remove (fn [pos]
                                   (some #(= pos %) positions))
-                          (range 0 (count (.head rel))))
-              new-header (conj (vec (map #(get (.head rel) %) remaining)) alias)
+                          (range 0 (count (.head r))))
+              new-header (conj (vec (map #(get (.head r) %) remaining)) alias)
               tuples-rel (apply merge-with union (map (fn [tuple]
                                                         {(vec (map (fn [pos] (get tuple pos)) remaining))
-                                                         (newrel attributes #{(vec (map #(get tuple %)
+                                                         (rel attributes #{(vec (map #(get tuple %)
                                                                                                       positions))})})
-                                                   (.body rel)))
+                                                   (.body r)))
               new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
-        (recur (newrel new-header new-body)
+        (recur (rel new-header new-body)
                (next gmap))))))
   
   (ungroup [relation attributes]
-    (loop [rel relation, attrs attributes]
+    (loop [r relation, attrs attributes]
       (if (nil? attrs)
-          rel
-          (let [attr-pos (index-of (.head rel) (first attrs))
-                rem-pos  (remove #(= attr-pos %) (range 0 (count (.head rel))))
-                new-head (vec (concat (remove #(= (first attrs) %) (.head rel)) 
-                                      (-> (.body rel) first (nth attr-pos) .head)))
+          r
+          (let [attr-pos (index-of (.head r) (first attrs))
+                rem-pos  (remove #(= attr-pos %) (range 0 (count (.head r))))
+                new-head (vec (concat (remove #(= (first attrs) %) (.head r)) 
+                                      (-> (.body r) first (nth attr-pos) .head)))
                 new-body (apply concat (map (fn [t]
                                               (let [beginning (map (fn [pos] (nth t pos))
                                                                    rem-pos)]
                                                 (map (fn [inner-t]
                                                        (concat beginning inner-t))
                                                      (-> t (nth attr-pos) .body))))
-                                            (.body rel)))]
-            (recur (newrel new-head (set (map vec new-body))) 
+                                            (.body r)))]
+            (recur (rel new-head (set (map vec new-body))) 
                    (next attrs))))))
   
   (wrap [relation wrap-map]
-    (loop [rel relation, wrapper wrap-map]
+    (loop [r relation, wrapper wrap-map]
       (if (nil? wrapper)
-          rel
+          r
           (let [[new-attr old-attrs] (first wrapper)
-                old-pos (map #(index-of (.head rel) %) old-attrs)
-                rem-pos (remove #(index-of old-pos %) (range 0 (count (.head rel))))
-                new-head (conj (vec (map #(nth (.head rel) %) rem-pos)) new-attr)
+                old-pos (map #(index-of (.head r) %) old-attrs)
+                rem-pos (remove #(index-of old-pos %) (range 0 (count (.head r))))
+                new-head (conj (vec (map #(nth (.head r) %) rem-pos)) new-attr)
                 new-body (set (map (fn [t]
                                      (conj (vec (map #(nth t %) rem-pos))
-                                           (apply merge (map #(hash-map (nth (.head rel) %) 
+                                           (apply merge (map #(hash-map (nth (.head r) %) 
                                                                         (nth t %)) 
                                                              old-pos))))
-                                   (.body rel)))]
-            (recur (newrel new-head new-body)
+                                   (.body r)))]
+            (recur (rel new-head new-body)
                    (next wrapper))))))
   
   (unwrap [relation attributes]
-    (loop [rel relation, attrs attributes]
+    (loop [r relation, attrs attributes]
       (if (nil? attrs)
-          rel
-          (let [attr-pos (index-of (.head rel) (first attrs))
-                rem-pos (remove #(= attr-pos %) (range 0 (count (.head rel))))
-                new-attrs (-> rel .body first (nth attr-pos) keys)
-                new-head (vec (concat (map #(nth (.head rel) %) rem-pos)
+          r
+          (let [attr-pos (index-of (.head r) (first attrs))
+                rem-pos (remove #(= attr-pos %) (range 0 (count (.head r))))
+                new-attrs (-> r .body first (nth attr-pos) keys)
+                new-head (vec (concat (map #(nth (.head r) %) rem-pos)
                                       new-attrs))
                 new-body (set (map (fn [t] 
                                      (vec (concat (map #(nth t %) rem-pos)
                                                   (map #(get (nth t attr-pos) %) new-attrs))))
-                                   (.body rel)))]
-            (recur (newrel new-head new-body)
+                                   (.body r)))]
+            (recur (rel new-head new-body)
                    (next attrs))))))
   
   (summarize [relation group-by sum-map]
     (let [group? (not (empty? group-by))
           gsym (keyword (gensym "G_"))
-          rel (if group? (group relation {gsym (attr-complement relation group-by)}) relation)
-          inner-rel-index (index-of (.head rel) gsym)]
+          r (if group? (group relation {gsym (attr-complement relation group-by)}) relation)
+          inner-rel-index (index-of (.head r) gsym)]
       (if group?
           ; with group by
-          (loop [new-rel rel
+          (loop [new-rel r
                  summap sum-map]
             (if (nil? summap)
                 (project- new-rel [gsym])
@@ -407,14 +407,14 @@
                                            (let [new-val (fun (nth t inner-rel-index))] 
                                              (conj t new-val)))
                                          (.body new-rel)))]
-                  (recur (newrel new-head new-body) 
+                  (recur (rel new-head new-body) 
                          (next summap)))))
           
           ; no group by attributes
-          (loop [new-rel (newrel [] #{[]})
+          (loop [new-rel (rel [] #{[]})
                  summap sum-map]
             (if (nil? summap)
                 new-rel
                 (let [[name fun] (first summap)]
-                  (recur (add-to new-rel {name (fun rel)}) 
+                  (recur (add-to new-rel {name (fun r)}) 
                          (next summap)))))))))

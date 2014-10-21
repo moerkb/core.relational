@@ -1,1 +1,1 @@
-{rel core.relational/newrel}
+{rel core.relational/rel}

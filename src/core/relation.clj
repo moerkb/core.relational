@@ -94,7 +94,7 @@
   [rel writer]
   (.write writer (str "Rel:" (pr-str (set (seq rel))))))
 
-(defn newrel 
+(defn rel 
   "Creates a relation in three possible ways:
 
   (1) Given as a set of hash maps: #{ {:id 1, :name \"Arthur\"} {:id 2, :name \"Betty\"} }
@@ -123,8 +123,8 @@
   [rel tuple]
   (some #(= % tuple) (seq rel)))
 
-(def table-dee "Represents true." (newrel [] #{[]}))
-(def table-dum "Represents false." (newrel [] #{}))
+(def table-dee "Represents true." (rel [] #{[]}))
+(def table-dum "Represents false." (rel [] #{}))
 
 (defn save-rel
   "Saves the relation in the specified file."
@@ -134,7 +134,7 @@
 (defn load-rel
   "Loads a relation from the specified file."
   [file]
-  (newrel (edn/read-string (slurp file))))
+  (rel (edn/read-string (slurp file))))
 
 (defn order
   "Returns the relation as a sorted set. The sorting is defined by the hash 

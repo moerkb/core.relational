@@ -1,5 +1,5 @@
 QUESTIONS
-- validate functions of atom - how to reference meta data of own atom?
+- validate functions of ref - how to reference meta data of own ref?
 - optimisation?
 - appendix? glossary?
 - indexes?

@@ -9,14 +9,14 @@
 ; SQL equivalents are given
 ; s.city is renamed for s.scity and p.city for p.pcity for easier join
 
-(def s (newrel [:sno :sname :status :scity]
+(def s (rel [:sno :sname :status :scity]
                         #{["S1" "Smith" 20 "London"]
                           ["S2" "Jones" 10 "Paris"]
                           ["S3" "Blake" 30 "Paris"]
                           ["S4" "Clark" 20 "London"]
                           ["S5" "Adams" 30 "Athens"]}))
 
-(def sp (newrel [:sno :pno :qty]
+(def sp (rel [:sno :pno :qty]
                          #{["S1" "P1" 300]
                            ["S1" "P2" 200]
                            ["S1" "P3" 400]
@@ -30,7 +30,7 @@
                            ["S4" "P4" 300]
                            ["S4" "P5" 400]}))
 
-(def p (newrel [:pno :pname :color :weight :pcity]
+(def p (rel [:pno :pname :color :weight :pcity]
                         #{["P1" "Nut"   "Red"   12 "London"]
                           ["P2" "Bolt"  "Green" 17 "Paris"]
                           ["P3" "Screw" "Blue"  17 "Oslo"]
@@ -141,7 +141,7 @@ s
 ; select count(sno) as Quantity from s
 (count s)
 ; resp.
-(newrel {:Quantity (count s)})
+(rel {:Quantity (count s)})
 ; more precise
 (summarize s nil {:Quantity #(count %)})
 

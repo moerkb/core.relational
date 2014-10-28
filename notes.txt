@@ -1,4 +1,5 @@
 QUESTIONS
+- multi-assign?
 
 TASKS
 - rename: constructor: is the old head/body used or copied?

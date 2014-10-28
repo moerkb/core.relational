@@ -180,7 +180,8 @@
         (rel head value-tuples))))
   
   (project- [relation attributes]
-    (let [pos (remove nil? (map #(if (index-of attributes %)
+    (let [attrs (if (set? attributes) attributes (set attributes))
+          pos (remove nil? (map #(if (contains? attrs %)
                                     nil
                                     (index-of (.head relation) %)) 
                                 (.head relation)))]
@@ -332,8 +333,8 @@
               new-header (conj (vec (map #(get (.head r) %) remaining)) alias)
               tuples-rel (apply merge-with union (map (fn [tuple]
                                                         {(vec (map (fn [pos] (get tuple pos)) remaining))
-                                                         (rel attributes #{(vec (map #(get tuple %)
-                                                                                                      positions))})})
+                                                         (rel (vec attributes) #{(vec (map #(get tuple %)
+                                                                                        positions))})})
                                                    (.body r)))
               new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
         (recur (rel new-header new-body)

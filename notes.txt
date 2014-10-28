@@ -2,9 +2,7 @@ QUESTIONS
 
 TASKS
 - tclose: cycles in graph?
-- rename: name instead of str (subs 1)
 - rename: constructor: is the old head/body used or copied?
-- index-of -> .indexOf?
 - join: single case?
 - order by for multiple attributes
 - saving relvars and databases

@@ -60,10 +60,14 @@
 (defn index-of 
   "Finds the position of the item in the collection. Nil if not in there."
   [coll item]
-  (let [res (count (take-while (partial not= item) coll))]
-    (if (>= res (count coll))
-      nil
-      res)))
+  (let [index (.indexOf coll item)]
+    (if (>= index 0)
+      index
+      nil)))
+  #_(let [res (count (take-while (partial not= item) coll))]
+     (if (>= res (count coll))
+       nil
+       res))
 
 (defn sort-vec
   "Creates a vector showing the positions of the attributes in the second
@@ -92,5 +96,5 @@
   [relation attributes]
   (if (and (not (keyword? attributes)) (empty? attributes))
       (.head relation)
-      (let [attrs (if (coll? attributes) attributes [attributes])]
-        (vec (remove #(if (index-of attrs %) true false) (.head relation))))))
+      (let [attrs (if (coll? attributes) (set attributes) #{attributes})]
+        (vec (remove #(if (contains? attrs %) true false) (.head relation))))))

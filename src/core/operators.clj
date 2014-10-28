@@ -151,7 +151,7 @@
   
   (rename* [relation match-exp replace-str]
     (rel (vec (map (fn [a] 
-                                 (-> a str (subs 1) (str/replace match-exp replace-str) keyword))
+                                 (-> a name (str/replace match-exp replace-str) keyword))
                                (.head relation)))
                      (.body relation)))
   

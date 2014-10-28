@@ -123,8 +123,8 @@
   [rel tuple]
   (some #(= % tuple) (seq rel)))
 
-(def table-dee "Represents true." (rel [] #{[]}))
-(def table-dum "Represents false." (rel [] #{}))
+(def dee "Represents true." (rel [] #{[]}))
+(def dum "Represents false." (rel [] #{}))
 
 (defn save-rel
   "Saves the relation in the specified file."

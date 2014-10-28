@@ -37,13 +37,13 @@
     (is (not (in? r {:name "Carl", :id 3})))))
 
 (deftest scheme-test
-  (is (= [] (scheme table-dee)))
-  (is (= [] (scheme table-dum)))
+  (is (= [] (scheme dee)))
+  (is (= [] (scheme dum)))
   (is (= [:id :name] (scheme (rel [:id :name] #{[1 "Arthur"]})))))
 
 (deftest body-test
-  (is (= #{[]} (body table-dee)))
-  (is (= #{} (body table-dum)))
+  (is (= #{[]} (body dee)))
+  (is (= #{} (body dum)))
   (is (= #{[1 "Arthur"] [2 "Betty"]} (body (rel [:id :name] #{[1 "Arthur"] [2 "Betty"]})))))
 
 (deftest sort-rel-test
@@ -82,7 +82,7 @@
   (let [r (rel {:id 1 :name "Arthur"})
         r-true  (project (restrict r #(= "Arthur" (:name %))) nil)
         r-false (project (restrict r #(= "Betty"  (:name %))) nil)]
-    (is (=    table-dee r-true))
-    (is (not= table-dum r-true))
-    (is (=    table-dum r-false))
-    (is (not= table-dee r-false))))
+    (is (=    dee r-true))
+    (is (not= dum r-true))
+    (is (=    dum r-false))
+    (is (not= dee r-false))))

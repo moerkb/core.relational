@@ -2,7 +2,7 @@
 
 (deftest relfn-test
   (is (= '(= 20 (:status t))
-         (:source (meta (relfn '[t] '(= 20 (:status t))))))))
+         (:body (meta (relfn [t] (= 20 (:status t))))))))
 
 (deftest same-type?-test
   (testing "Comparing types of two relations"

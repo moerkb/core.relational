@@ -4,9 +4,9 @@
 (defmacro relfn 
   "Behaves like fn, but stores the source code in the metadata to allow 
   optimisation."
-  [args code]
-  `(with-meta (fn [~@args] ~code)
-     {:source ~code}))
+  [args body]
+  (with-meta (list 'fn args body)
+             {:body (list 'quote body)}))
 
 (defn common-attr
   "Returns a vector of all attributes that both relations have in common.

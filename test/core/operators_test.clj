@@ -25,7 +25,7 @@
     
     (testing "Restrict"
       (is (= (rel [:id :name] #{[2 "Betty"]})
-             (restrict r (fn [t] (= (:id t) 2))))))
+             (restrict r (relfn [t] (= (:id t) 2))))))
     
     (testing "Projection with collection"
       (is (= r (project r [:id :name])))
@@ -38,7 +38,7 @@
       (is (= (rel [:pre-name] #{["Arthur"] ["Betty"]})
              (project r {:pre-name :name})))
       (is (= (rel [:new-id :pre-name] #{[2 "Arthur"] [3 "Betty"]})
-             (project r {:new-id (fn [t] (inc (:id t))), :pre-name :name}))))
+             (project r {:new-id (relfn [t] (inc (:id t))), :pre-name :name}))))
     
     (testing "Project- (remove)"
       (is (= (rel [:name] #{["Arthur"] ["Betty"]})
@@ -47,7 +47,7 @@
     (testing "Add-to (extend)"
       (is (= (rel [:id :name :status] 
                               #{[1 "Arthur" 20] [2 "Betty" 40]})
-             (add-to r {:status (fn [t] (* 20 (:id t)))})))
+             (add-to r {:status (relfn [t] (* 20 (:id t)))})))
       (is (= (rel [:id :name :status]
                               #{[1 "Arthur" 50] [2 "Betty" 50]})
              (add-to r {:status 50}))))
@@ -157,7 +157,7 @@
              (summarize product-rel #{:ProductId} {:PCount #(reduce + (:Qty %))})))
       (is (= (rel [:ProductId :PCount :MaxQty] #{[42 8 5] [21 7 7]})
              (summarize product-rel #{:ProductId} {:PCount #(reduce + (:Qty %))
-                                                   :MaxQty #(reduce max (:Qty %))})))
+                                                   :MaxQty (relfn [t] (reduce max (:Qty t)))})))
       (is (= (rel {:PCount 15})
              (summarize product-rel #{} {:PCount #(reduce + (:Qty %))})))
       (is (= (.hashCode (rel {:PCount 15, :MaxQty 7}))

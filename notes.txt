@@ -1,24 +1,20 @@
 QUESTIONS
-- validate functions of ref - how to reference meta data of own ref?
-- optimisation?
-- appendix? glossary?
-- indexes?
-- constraints between relvars?
-- relfn: quotes? save arg list?
-- transactions
-- verdict?
-- related work - ok?
-- tuple type? (Menge der Attributnamen?)
-- Tabellarische Darstellung von Relationen
-- summariZe - summariSe
-- Wofür braucht man eigentlich: Group, Wrap, Tclose, Compose?
-- Transaktion-System durch Refs?
 
 TASKS
-- compare vector implementation with hash map implementation
+- tclose: cycles in graph?
+- rename: name instead of str (subs 1)
+- rename: constructor: is the old head/body used or copied?
+- index-of -> .indexOf?
+- join: single case?
+- order by for multiple attributes
 - saving relvars and databases
 - relvars
-- indexes
+- virtual relvars
+- validate functions of ref - how to reference meta data of own ref?
+  - macro: contraints -> valid fun
+- examples
+- contains? on relation
+- rename: table-dee -> dee, table-dum -> dum
 
 NOTES
 - TABLE_DEE = true  (empty tuple)

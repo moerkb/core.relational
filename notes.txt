@@ -1,7 +1,6 @@
 QUESTIONS
 
 TASKS
-- tclose: cycles in graph?
 - rename: constructor: is the old head/body used or copied?
 - join: single case?
 - order by for multiple attributes

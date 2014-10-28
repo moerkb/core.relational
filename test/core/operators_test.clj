@@ -93,9 +93,12 @@
     
     (testing "Tclose"
       (let [bin-rel (rel [:from :to] #{[1 2] [2 3] [2 4] [3 5] [3 6] [4 5] [6 7]})
-            tclose_bin_rel (union bin-rel (rel [:from :to]
-                                            #{[1 3] [1 4] [1 5] [1 6] [1 7] [2 5] [2 6] [2 7] [3 7]}))]
-        (is (= tclose_bin_rel (tclose bin-rel)))))
+            tclose-bin-rel (union bin-rel (rel [:from :to]
+                                            #{[1 3] [1 4] [1 5] [1 6] [1 7] [2 5] [2 6] [2 7] [3 7]}))
+            bin-rel-cycles (union bin-rel (rel {:from 3 :to 1}))
+            tclose-cycles (union tclose-bin-rel (rel [:from :to] #{[1 1] [2 1] [2 2] [3 1] [3 2] [3 3] [3 4]}))]
+        (is (= tclose-bin-rel (tclose bin-rel)))
+        (is (= tclose-cycles (tclose bin-rel-cycles)))))
     
     (testing "Join, case 1: natural join"
       (is (= (rel [:id :name :phone] #{[2 "Betty" "+49 641 12345"] [1 "Arthur" "+49 2931 12345"]})

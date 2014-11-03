@@ -16,7 +16,7 @@
     (is (thrown? IllegalArgumentException (relvar (rel {:id -5}) 
                                            [(relfn [r] (every? #(> % 0) (:id r)))])))))
 
-(deftest assign-test
+(deftest assign!-test
   (testing "Assignment of relation with independent constraints." 
     (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Betty"}})
                 [(relfn [r] (every? #(< % 21) (:id r)))
@@ -40,3 +40,34 @@
   
   (testing "Assignment with wrong type"
     (is (thrown? IllegalArgumentException (assign! (relvar (rel {:id 5})) dum)))))
+
+(deftest insert!-test
+  (let [rvar (relvar (rel {:id 1 :name "Arthur"})
+                     [(relfn [r] (every? #(> % 0) (:id r)))])
+        res1 (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Bethy"}})
+        res2 (union res1 (rel #{{:id 3 :name "Carl"} {:id 4 :name "Danny"}}))]
+    (is (= res1 (insert! rvar {:id 2 :name "Bethy"})))
+    (is (= res2 (insert! rvar #{{:id 3 :name "Carl"} {:id 4 :name "Danny"}})))
+    (is (thrown? IllegalArgumentException (insert! rvar {:id -5 :name "Tony"})))
+    (is (thrown? IllegalArgumentException (insert! rvar {:id 5})))))
+
+(deftest delete!-test
+  (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} 
+                            {:id 2 :name "Bethy"} 
+                            {:id 3 :name "Carl"} 
+                            {:id 4 :name "Danny"}})
+               [(relfn [r] (every? #(> % 0) (:id r)))])]
+    (is (= (rel #{{:id 1 :name "Arthur"} 
+                  {:id 3 :name "Carl"}})
+          (delete! rvar (relfn [t] (even? (:id t))))))))
+
+(deftest update!-test
+  (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} 
+                            {:id 2 :name "Bethy"} 
+                            {:id 3 :name "Carl"} 
+                            {:id 4 :name "Danny"}})
+               [(relfn [r] (every? #(> % 0) (:id r)))])]
+    (is (= (rel [:id :name] #{[1 "John"] [2 "Bethy"] [3 "John"] [4 "Danny"]})
+          (update! rvar (relfn [t] (odd? (:id t))) :name "John")))
+    (is (= (rel [:id :name] #{[1 "John"] [6 "Bethy"] [3 "John"] [12 "Danny"]})
+          (update! rvar (relfn [t] (even? (:id t))) :id (relfn [t] (* 3 (:id t))))))))

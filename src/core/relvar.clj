@@ -57,3 +57,28 @@
       (ref-set rvar new-relation)
       (check-constraints @rvar constraints)
       @rvar)))
+
+(defn insert!
+  "Inserts the tuple (or set of tuples) into relvar."
+  [rvar tuple]
+  (let [new-rel (rel tuple)] 
+    (assign! rvar (union @rvar new-rel))))
+
+(defn delete!
+  "Deletes tuples from relvar, for which the tuple predicate returns true. Use 
+  relfn to produce the predicate to enable optimization. It takes a single tuple
+  as its argument."
+  [rvar pred?]
+  (let [dif-rel (restrict @rvar pred?)]
+    (assign! rvar (difference @rvar dif-rel))))
+
+(defn update!
+  "Updates tuples in relvar, for which the tuple predicate is true. The
+  value at attribute is then changed to new-value. This can be a fixed value or
+  a tuple function. Use relfn for predicate."
+  [rvar pred? attribute new-value]
+  (assign! rvar (rel (set (map (fn [t]
+                                 (if (pred? t)
+                                   (assoc t attribute (if (fn? new-value) (new-value t) new-value))
+                                   t)) 
+                            (seq @rvar))))))

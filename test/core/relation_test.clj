@@ -37,9 +37,9 @@
     (is (not (in? r {:name "Carl", :id 3})))))
 
 (deftest scheme-test
-  (is (= [] (scheme dee)))
-  (is (= [] (scheme dum)))
-  (is (= [:id :name] (scheme (rel [:id :name] #{[1 "Arthur"]})))))
+  (is (= #{} (scheme dee)))
+  (is (= #{} (scheme dum)))
+  (is (= #{:id :name} (scheme (rel [:id :name] #{[1 "Arthur"]})))))
 
 (deftest body-test
   (is (= #{[]} (body dee)))

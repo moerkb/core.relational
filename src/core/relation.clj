@@ -63,10 +63,9 @@
                        (.body target)))))))))
 
 (defn scheme 
-  "Returns the scheme (= list of attributes) of the relation. The order is the
-  same as in the internal representation."
+  "Returns the scheme (= set of attributes) of the relation."
   [relation]
-  (.head relation))
+  (set (.head relation)))
 
 (defn body
   "Returns the set of value tuples of the relation. Each tuple is a vector with

@@ -35,4 +35,8 @@
       (is (= (union r (rel {:pid 2 :phone "987654321"}))
              (assign! rvar2 (union @rvar2 (rel {:pid 2 :phone "987654321"})))))
       (is (= #{'rvar1} (:involved-relvars (meta rvar2))))
-      (is (thrown? IllegalArgumentException (assign! rvar2 (union @rvar2 (rel {:pid 4 :phone "32132"}))))))))
+      (is (thrown? IllegalArgumentException (assign! rvar2 (union @rvar2 
+                                                             (rel {:pid 4 :phone "32132"})))))))
+  
+  (testing "Assignment with wrong type"
+    (is (thrown? IllegalArgumentException (assign! (relvar (rel {:id 5})) dum)))))

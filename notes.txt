@@ -1,5 +1,8 @@
 QUESTIONS
 - multi-assign?
+- ensure
+- unique/primary key implementation
+
 
 TASKS
 - rename: constructor: is the old head/body used or copied?

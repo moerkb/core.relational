@@ -18,6 +18,15 @@
           (recur (rest symlist) 
                  res))))))
 
+(defn- check-constraints
+  "Checks given constraints for given relational value. Throws an exeption if
+  a constraint is violated, otherwise nil."
+  [relval constraints]
+  (doseq [c constraints]
+    (when-not (c relval)
+      (throw (IllegalArgumentException. 
+               (str "The new value does not satisfy the constraint " (:body (meta c))))))))
+
 (defn relvar 
   "Creates a relation variable from the given relation (value). Constraints is 
   a collection of predicates, the relvar always has to satisfy when its value 
@@ -25,16 +34,18 @@
   ([relation]
     (ref relation :meta {:constraints nil, :involved-relvars []}))
   ([relation constraints]
+    (check-constraints relation constraints)
     (ref relation :meta {:constraints constraints, :involved-relvars (involved-relvars constraints)})))
 
 (defn assign!
   "Assigns a new relation value to a relation variable, but only if all
   constraints are satisfied. Otherwise, an IllegalArgumentException is 
   thrown and the relvar remains unchanged."
-  [relvar new-relation]
+  [rvar new-relation]
   (dosync 
-    (if (every? true? (map (fn [p] (p new-relation)) 
-                       (:constraints (meta relvar))))
-     (ref-set relvar new-relation)
-     (throw (IllegalArgumentException. 
-              "The new relation value does not satisfy all constraints.")))))
+    (let [rvars (:involved-relvars (meta rvar))
+          constraints (remove nil? (concat (:constraints (meta rvar))
+                                     (map #(:constraints (meta %)) rvars)))] 
+      (ref-set rvar new-relation)
+      (check-constraints @rvar constraints)
+      @rvar)))

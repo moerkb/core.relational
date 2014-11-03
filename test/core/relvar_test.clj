@@ -12,7 +12,9 @@
 (deftest relvar-test
   (let [r (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Betty"}})]
     (is (= r @(relvar r)))
-    (is (= r @(relvar r [(relfn [r] (< (:id r) 21))])))))
+    (is (= r @(relvar r [(relfn [r] (every? #(< % 21) (:id r)))])))
+    (is (thrown? IllegalArgumentException (relvar (rel {:id -5}) 
+                                           [(relfn [r] (every? #(> % 0) (:id r)))])))))
 
 (deftest assign-test
   (testing "Assignment of relation with independent constraints." 

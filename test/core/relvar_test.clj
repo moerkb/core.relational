@@ -12,7 +12,7 @@
 (deftest relvar-test
   (let [r (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Betty"}})]
     (is (= r @(relvar r)))
-    (is (= r @(relvar r [(relfn [r] (every? #(< % 21) (:id r)))])))
+    (is (= r @(relvar r (relfn [r] (every? #(< % 21) (:id r))))))
     (is (thrown? IllegalArgumentException (relvar (rel {:id -5}) 
                                            [(relfn [r] (every? #(> % 0) (:id r)))])))))
 
@@ -26,6 +26,12 @@
      (is (empty? (:involved-relvars (meta rvar))))
      (is (thrown? IllegalArgumentException (assign! rvar (union @rvar (rel {:id 1  :name "Dora"})))))
      (is (thrown? IllegalArgumentException (assign! rvar (union @rvar (rel {:id 42 :name "Dora"})))))))
+  
+  #_(testing "Assignemnt with key feature"
+     (let [rvar (relvar (rel {:id 1 :name "Arthur"}) {:id :key})]
+       (is (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Bethy"}})
+             (insert! rvar {:id 3 :name "Carl"})))
+       (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Dora"})))))
   
   (testing "Assignment of relation with constraints depending on other relations."
     (let [r (rel #{{:pid 1 :phone "123456789"}}) 

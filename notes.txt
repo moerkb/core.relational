@@ -7,7 +7,6 @@ QUESTIONS
 TASKS
 - rename: constructor: is the old head/body used or copied?
 - join: single case?
-- order by for multiple attributes
 - saving relvars and databases
 - relvars
 - virtual relvars

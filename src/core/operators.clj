@@ -317,6 +317,11 @@
       (if (nil? attrs)
           r
           (let [attr-pos (index-of (.head r) (first attrs))
+                _ (when-not (empty? (clj-set/intersection 
+                                      (set (.head r))
+                                      (set (.head (get (first (.body r)) attr-pos)))))
+                    (throw (IllegalStateException. 
+                             "There are attributes in the inner relation that already are in the outer one.")))
                 rem-pos  (remove #(= attr-pos %) (range 0 (count (.head r))))
                 new-head (vec (concat (remove #(= (first attrs) %) (.head r)) 
                                       (-> (.body r) first (nth attr-pos) .head)))
@@ -352,6 +357,11 @@
       (if (nil? attrs)
           r
           (let [attr-pos (index-of (.head r) (first attrs))
+                _ (when-not (empty? (clj-set/intersection 
+                                      (set (.head r))
+                                      (set (keys (get (first (.body r)) attr-pos)))))
+                    (throw (IllegalStateException. 
+                             "There are attributes in the inner relation that already are in the outer one.")))
                 rem-pos (remove #(= attr-pos %) (range 0 (count (.head r))))
                 new-attrs (-> r .body first (nth attr-pos) keys)
                 new-head (vec (concat (map #(nth (.head r) %) rem-pos)

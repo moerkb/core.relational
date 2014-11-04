@@ -143,7 +143,8 @@
     
     (testing "Ungroup"
       (is (= product-rel
-             (ungroup (group product-rel {:Positions #{:ProductId :Qty}}) #{:Positions}))))
+             (ungroup (group product-rel {:Positions #{:ProductId :Qty}}) #{:Positions})))
+      (is (thrown? IllegalStateException (ungroup (rel {:id 1 :inner (rel {:id 2})}) [:inner]))))
     
     (testing "Wrap"
       (is (= wrap-dest (wrap wrap-start {:address #{:street :zip :city}}))))
@@ -153,7 +154,8 @@
                                 #{:address})))
       (is (= wrap-start (unwrap (wrap wrap-start {:address #{:street :zip :city}
                                                   :main    #{:id :name}})
-                                #{:address :main}))))
+                                #{:address :main})))
+      (is (thrown? IllegalStateException (unwrap (rel {:id 1 :inner {:id 2}}) [:inner]))))
     
     (testing "Summarize"
       (is (= (rel [:ProductId :PCount] #{[42 8] [21 7]})

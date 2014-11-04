@@ -138,12 +138,23 @@
 (defn order
   "Returns the relation as a sorted set. The sorting is defined by the hash 
   map, with the key as the attribute to be sorted by and its value either :asc
-  or :desc. Example: (sort r {:id :asc})"
+  or :desc. Example: (sort r {:id :asc})
+
+  Sorting by multiple attributes can be done. sort-map is a vector of maps then,
+  in the form shown above. The map defines the primary sorting, the second one
+  the secondary sorting, etc. Example: 
+  (sort r [{:surname :asc} {:prename :desc}])"
   [rel sort-map]
   (apply sorted-set-by 
-         (fn [r1 r2]
-           (let [[attr order] (first sort-map)] 
-             (if (= :asc order)
-                 (compare (r1 attr) (r2 attr))
-                 (compare (r2 attr) (r1 attr))))) 
+         (fn [t1 t2]
+           (loop [smap (if (map? sort-map) [sort-map] sort-map)]
+             (let [attr (-> smap first keys first)
+                   order (-> smap first vals first)]
+               (if (= (t1 attr) (t2 attr))
+                 (if (next smap)
+                   (recur (next smap))
+                   0)
+                 (if (= :asc order)
+                   (compare (t1 attr) (t2 attr))
+                   (compare (t2 attr) (t1 attr))))))) 
          (seq rel)))

@@ -6,12 +6,9 @@ QUESTIONS
 
 TASKS
 - rename: constructor: is the old head/body used or copied?
-- join: single case?
 - saving relvars and databases
 - relvars
 - virtual relvars
-- validate functions of ref - how to reference meta data of own ref?
-  - macro: contraints -> valid fun
 - examples
 - contains? on relation
 

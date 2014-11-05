@@ -1,16 +1,14 @@
 QUESTIONS
-- multi-assign?
-- ensure
-- unique/primary key implementation
-
+- multi-assign? - nein
+- binding of relvars from let
+- delete forwarding? - abwehren - in einer Transaktion zwei Assigns
+- distinct virtual relvars?
+- rename: constructor: is the old head/body used or copied?
 
 TASKS
-- rename: constructor: is the old head/body used or copied?
 - saving relvars and databases
-- relvars
 - virtual relvars
 - examples
-- contains? on relation
 
 NOTES
 - TABLE_DEE = true  (empty tuple)

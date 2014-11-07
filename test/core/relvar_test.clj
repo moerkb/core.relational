@@ -10,11 +10,22 @@
      (is (thrown? IllegalArgumentException (assign! rvar (union @rvar (rel {:id 1  :name "Dora"})))))
      (is (thrown? IllegalArgumentException (assign! rvar (union @rvar (rel {:id 42 :name "Dora"})))))))
   
-  #_(testing "Assignemnt with key feature"
-     (let [rvar (relvar (rel {:id 1 :name "Arthur"}) {:id :key})]
-       (is (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Bethy"}})
-             (insert! rvar {:id 3 :name "Carl"})))
-       (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Dora"})))))
+  (testing "Assignment with unique attribute"
+    (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Carl"}}) {:id :unique})]
+      (is (thrown? IllegalArgumentException (relvar (rel {:id 1 :name "Arthur"}) {:id :key})))
+      (is (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Carl"} {:id 3 :name "Carl"}})
+            (insert! rvar {:id 3 :name "Carl"})))
+      (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Dora"})))))
+  
+  (testing "Assignment with primary keys"
+    (let [rvar1 (relvar (rel {:id 1 :name "Arthur"}) {:id :primary-key})
+          rvar2 (relvar (rel {:id1 1 :id2 5 :name "Arthur"}) {#{:id1 :id2} :primary-key})]
+      (is (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Beth"}})
+             (insert! rvar1 {:id 2 :name "Beth"})))
+      (is (thrown? IllegalArgumentException (insert! rvar1 {:id 2 :name "Carl"})))
+      (is (= (rel #{{:id1 1 :id2 5 :name "Arthur"} {:id1 1 :id2 6 :name "Beth"}})
+             (insert! rvar2 {:id1 1 :id2 6 :name "Beth"})))
+      (is (thrown? IllegalArgumentException (insert! rvar2 {:id1 1 :id2 6 :name "Carl"})))))
   
   (testing "Assignment of relation with constraints depending on other relations."
     (let [r (rel #{{:pid 1 :phone "123456789"}}) 

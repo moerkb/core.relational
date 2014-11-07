@@ -5,9 +5,25 @@
   a constraint is violated, otherwise nil."
   [relval constraints]
   (doseq [c constraints]
-    (when-not (c relval)
-      (throw (IllegalArgumentException. 
-               (str "The new value does not satisfy the constraint " (:body (meta c))))))))
+    (if (map? c)
+      ; c is a hash map
+      (let [[attr ctype] (first c)
+            attr-set (if (keyword? attr) #{attr} attr)]
+        (if (not= (count c) 1)
+          (throw (IllegalArgumentException. (str "Only one element may be in a constraint hash map: " c)))
+          (case ctype
+            :unique (when-not (= (count relval) (count (project relval #{attr})))
+                      (throw (IllegalArgumentException. (str "The attribute " attr " is not unique in " relval))))
+            
+            :primary-key (when-not (= (count relval) (count (project relval attr-set)))
+                                     (throw (IllegalArgumentException. (str "This primary key already exists."))))
+            
+            (throw (IllegalArgumentException. (str "Unkown type in constraint hash map: " c))))))
+      
+      ; c is predicate, just invoke
+      (when-not (c relval)
+       (throw (IllegalArgumentException. 
+                (str "The new value does not satisfy the constraint " (:body (meta c)))))))))
 
 (defn relvar 
   "Creates a relation variable from the given relation (value). Constraints is 

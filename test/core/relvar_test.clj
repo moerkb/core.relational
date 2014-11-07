@@ -27,6 +27,16 @@
              (insert! rvar2 {:id1 1 :id2 6 :name "Beth"})))
       (is (thrown? IllegalArgumentException (insert! rvar2 {:id1 1 :id2 6 :name "Carl"})))))
   
+  (testing "Assignment with foreign keys (references)"
+    (let [rperson (relvar (rel {:id 1 :name "Arthur"}))
+          rphone  (relvar (rel {:id 1 :pid 1 :number "1234"})
+                          {{:key :pid, :referenced-relvar rperson, :referenced-key :id} :foreign-key})]
+      (is (= (rel #{{:id 1 :pid 1 :number "1234"} {:id 2 :pid 1 :number "2345"}})))
+      (is (thrown? IllegalArgumentException (insert! rphone {:id 3 :pid 2 :number "3456"})))
+      (is (thrown? IllegalArgumentException (delete! rperson (relfn [t]
+                                                                    (= 1 (:id t))))))
+      (is (thrown? IllegalArgumentException (assign! rperson (rel {:id 42 :name "Droggelbecher"}))))))
+  
   (testing "Assignment of relation with constraints depending on other relations."
     (let [r (rel #{{:pid 1 :phone "123456789"}}) 
           rvar1 (relvar (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Betty"}}))

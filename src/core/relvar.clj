@@ -1,29 +1,45 @@
 (ns core.relational)
 
 (defn- check-constraints
-  "Checks given constraints for given relational value. Throws an exeption if
-  a constraint is violated, otherwise nil."
-  [relval constraints]
-  (doseq [c constraints]
-    (if (map? c)
-      ; c is a hash map
-      (let [[attr ctype] (first c)
-            attr-set (if (keyword? attr) #{attr} attr)]
-        (if (not= (count c) 1)
-          (throw (IllegalArgumentException. (str "Only one element may be in a constraint hash map: " c)))
-          (case ctype
-            :unique (when-not (= (count relval) (count (project relval #{attr})))
-                      (throw (IllegalArgumentException. (str "The attribute " attr " is not unique in " relval))))
+  "Checks constraints and references of a relvar."
+  [rvar]
+  (doseq [r (:referenced-by (meta rvar))]
+    (check-constraints r))
+  (doseq [c (:constraints (meta rvar))]
+   (if (map? c)
+     ; c is a hash map
+     (let [[attr ctype] (first c)
+           attr-set (if (keyword? attr) #{attr} attr)]
+       (if (not= (count c) 1)
+         (throw (IllegalArgumentException. (str "Only one element may be in a constraint hash map: " c)))
+         (case ctype
+           :unique (when-not (= (count @rvar) (count (project @rvar #{attr})))
+                     (throw (IllegalArgumentException. (str "The attribute " attr " is not unique in " @rvar))))
             
-            :primary-key (when-not (= (count relval) (count (project relval attr-set)))
+           :primary-key (when-not (= (count @rvar) (count (project @rvar attr-set)))
                                      (throw (IllegalArgumentException. (str "This primary key already exists."))))
             
-            (throw (IllegalArgumentException. (str "Unkown type in constraint hash map: " c))))))
+           :foreign-key (when-not (every? #(in? (project @(:referenced-relvar attr) #{(:referenced-key attr)})
+                                                {(:referenced-key attr) %})
+                                          (map (comp first vals) (project @rvar #{(:key attr)}))) 
+                          (throw (IllegalArgumentException. 
+                                   (str "The key given for " 
+                                        (:key attr) 
+                                        " does not appear in the referenced relvar at "
+                                        (:referenced-key attr)))))
+            
+           (throw (IllegalArgumentException. (str "Unkown type in constraint hash map: " c))))))
       
-      ; c is predicate, just invoke
-      (when-not (c relval)
-       (throw (IllegalArgumentException. 
-                (str "The new value does not satisfy the constraint " (:body (meta c)))))))))
+     ; c is predicate, just invoke
+     (when-not (c @rvar)
+      (throw (IllegalArgumentException. 
+               (str "The new value does not satisfy the constraint " (:body (meta c)))))))))
+
+(defn- add-reference
+  "When a relvar is referenced by another one, it is added to the field
+  :referenced-by in the meta data."
+  [rvar referencer]
+  (alter-meta! rvar assoc :referenced-by (conj (:referenced-by (meta rvar)) referencer)))
 
 (defn relvar 
   "Creates a relation variable from the given relation (value). Constraints is 
@@ -32,13 +48,22 @@
 
   "
   ([relation]
-    (ref relation :meta {:constraints nil}))
+    (ref relation :meta {:constraints nil, :referenced-by #{}}))
   ([relation constraints]
     (let [constraints (if (or (map? constraints) (fn? constraints)) 
                         [constraints] 
-                        constraints)] 
-      (check-constraints relation constraints)
-      (ref relation :meta {:constraints constraints}))))
+                        constraints)
+          references (remove nil? (map #(when (and (map? %) (= :foreign-key (first (vals %))))
+                                         (-> % keys first :referenced-relvar)) 
+                                       constraints))
+          rvar (ref relation :meta {:constraints constraints, :referenced-by #{}})]
+      
+      
+      (check-constraints rvar)
+      ; every relvar this one references to, is "notified"
+      (doseq [r references]
+        (add-reference r rvar))
+      rvar)))
 
 (defn assign!
   "Assigns a new relation value to a relation variable, but only if it has the
@@ -49,12 +74,9 @@
     (when-not (= (scheme @rvar) (scheme new-relation))
       (throw (IllegalArgumentException. "The new value has a different type.")))
     
-    (let [rvars (:involved-relvars (meta rvar))
-          constraints (remove nil? (concat (:constraints (meta rvar))
-                                     (map #(:constraints (meta %)) rvars)))]
-      (ref-set rvar new-relation)
-      (check-constraints @rvar constraints)
-      @rvar)))
+    (ref-set rvar new-relation)
+    (check-constraints rvar)
+    @rvar))
 
 (defn insert!
   "Inserts the tuple (or set of tuples) into relvar."

@@ -9,6 +9,7 @@ TASKS
 - saving relvars and databases
 - virtual relvars
 - examples
+- ((relfn [rel] (reduce + (:weight rel)))p) != 91
 
 NOTES
 - TABLE_DEE = true  (empty tuple)

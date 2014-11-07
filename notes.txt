@@ -1,13 +1,8 @@
 QUESTIONS
-- multi-assign? - nein
-- binding of relvars from let
 - delete forwarding? - abwehren - in einer Transaktion zwei Assigns
-- distinct virtual relvars?
-- rename: constructor: is the old head/body used or copied?
 
 TASKS
 - saving relvars and databases
-- virtual relvars
 - examples
 - ((relfn [rel] (reduce + (:weight rel)))p) != 91
 

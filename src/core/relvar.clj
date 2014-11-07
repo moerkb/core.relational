@@ -35,11 +35,15 @@
       (throw (IllegalArgumentException. 
                (str "The new value does not satisfy the constraint " (:body (meta c)))))))))
 
-(defn- add-reference
-  "When a relvar is referenced by another one, it is added to the field
-  :referenced-by in the meta data."
+(defn- add-reference!
+  "Tell rvar it is referenced by referencer."
   [rvar referencer]
   (alter-meta! rvar assoc :referenced-by (conj (:referenced-by (meta rvar)) referencer)))
+
+(defn- remove-reference!
+  "Tell rvar it is no longer referenced by referencer."
+  [rvar referencer]
+  (alter-meta! rvar assoc :referenced-by (disj (:referenced-by (meta rvar)) referencer)))
 
 (defn relvar 
   "Creates a relation variable from the given relation (value). Constraints is 
@@ -62,7 +66,7 @@
       (check-constraints rvar)
       ; every relvar this one references to, is "notified"
       (doseq [r references]
-        (add-reference r rvar))
+        (add-reference! r rvar))
       rvar)))
 
 (defn assign!
@@ -102,3 +106,26 @@
                                    (assoc t attribute (if (fn? new-value) (new-value t) new-value))
                                    t)) 
                             (seq @rvar))))))
+
+(defn constraint-reset!
+  "If the new constraints are valid for relvar, it sets them permanently for it."
+  [rvar constraints]
+  (dosync 
+    (let [constraints (if (or (map? constraints) (fn? constraints))
+                        [constraints]
+                        constraints)
+          old-constraints (:constraints (meta rvar))]
+      (alter-meta! rvar assoc :constraints constraints)
+      (check-constraints rvar)
+      
+      ; constraints ok, take care of references
+      (let [find-references (fn [cs] (set (remove nil? (map #(when (and (map? %) 
+                                                                   (= :foreign-key (first (vals %))))
+                                                          (-> % keys first :referenced-relvar)) 
+                                                       cs))))
+            old-refs (find-references old-constraints)
+            new-refs (find-references constraints)]
+        (doseq [r (clj-set/difference old-refs new-refs)]
+          (remove-reference! rvar r))
+        (doseq [r (clj-set/difference new-refs old-refs)]
+          (add-reference! rvar r))))))

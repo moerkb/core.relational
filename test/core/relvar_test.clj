@@ -80,3 +80,19 @@
           (update! rvar (relfn [t] (odd? (:id t))) :name "John")))
     (is (= (rel [:id :name] #{[1 "John"] [6 "Bethy"] [3 "John"] [12 "Danny"]})
           (update! rvar (relfn [t] (even? (:id t))) :id (relfn [t] (* 3 (:id t))))))))
+
+(deftest constraint-reset!-test
+  (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Arthur"}})
+                     {:id :unique})]
+    (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Beth"})))
+    
+    (constraint-reset! rvar nil)
+    (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Arthur"} {:id 2 :name "Beth"}})
+       (insert! rvar {:id 2 :name "Beth"}))
+    
+    (is (thrown? IllegalArgumentException (constraint-reset! rvar {:name :unique}))) 
+    (is (thrown? IllegalArgumentException (constraint-reset! rvar {:id :unique}))) 
+    (constraint-reset! rvar (fn [r] (every? #(> (:id %) 0) r)))
+    (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Arthur"} {:id 2 :name "Beth"} {:id 42 :name "Dexter"}})
+       (insert! rvar {:id 42 :name "Dexter"}))
+    (is (thrown? IllegalArgumentException (insert! rvar {:id 0 :name "Homer"})))))

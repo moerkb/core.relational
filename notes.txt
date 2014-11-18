@@ -1,10 +1,23 @@
 QUESTIONS
-- delete forwarding? - abwehren - in einer Transaktion zwei Assigns
+- greek letters: summarize, wrap
+- primary key: foreign key definition does not need :referenced-key
+    state directly at (relvar ...) ? 
+- foreign key references to primary key?
+- implementation saving rels, relvars, db?
+
+=> (let [r (rel {:id 1 :name "Arthur"})]
+     (identical? (.head r) 
+                 (.head (rel (.head r) {:id 2 :name "Bethy"}))))
+true
 
 TASKS
 - saving relvars and databases
 - examples
 - ((relfn [rel] (reduce + (:weight rel)))p) != 91
+- tagged literal for relvar
+- add-constraint for relvar
+- unique and keys for several attributes
+- meaning string for relations
 
 NOTES
 - TABLE_DEE = true  (empty tuple)

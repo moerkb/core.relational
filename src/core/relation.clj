@@ -128,12 +128,12 @@
 (defn save-rel
   "Saves the relation in the specified file."
   [rel file]
-  (spit file (prn-str (set rel))))
+  (spit file (str "#rel " (prn-str (set rel)))))
 
 (defn load-rel
   "Loads a relation from the specified file."
   [file]
-  (rel (edn/read-string (slurp file))))
+  (edn/read-string {:readers {'rel core.relational/rel}} (slurp file)))
 
 (defn order
   "Returns the relation as a sorted set. The sorting is defined by the hash 

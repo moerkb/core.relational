@@ -11,6 +11,7 @@ QUESTIONS
 true
 
 TASKS
+- rename add-to
 - saving relvars and databases
 - examples
 - ((relfn [rel] (reduce + (:weight rel)))p) != 91

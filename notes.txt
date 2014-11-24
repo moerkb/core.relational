@@ -1,5 +1,5 @@
 QUESTIONS
-- greek letters: summarize, wrap
+- greek letters: summarize, wrap -> weglassen
 - primary key: foreign key definition does not need :referenced-key
     state directly at (relvar ...) ? 
 - foreign key references to primary key?
@@ -10,7 +10,15 @@ QUESTIONS
                  (.head (rel (.head r) {:id 2 :name "Bethy"}))))
 true
 
+- Abiteboul: Ungroup macht nicht immer Group rückgängig?
+- foreign key immer auf candidate key, nicht primary unbedingt
+- Übersicht Interfaces ähnlich Operators
+
+- Link zu GitHub schicken
+
 TASKS
+- degree of a relation
+- group/wrap with clojure's group by
 - rename add-to
 - saving relvars and databases
 - examples

@@ -1,1 +1,2 @@
-{rel core.relational/rel}
+{rel core.relational/rel
+ relvar core.relational/relvar}

@@ -2,17 +2,13 @@ QUESTIONS
 - Dee/Dum-Names
 
 TASKS
-- nested dosyncs?
 - group/wrap with clojure's group by
-- rename add-to
 - saving relvars and databases
 - examples
 - ((relfn [rel] (reduce + (:weight rel)))p) != 91
-- tagged literal for relvar
 - add-constraint for relvar
 - unique and keys for several attributes
   - uniqueness of combined attributes
-- meaning string for relations
 - insert! - transient strucutres -> better performance?
 
 NOTES

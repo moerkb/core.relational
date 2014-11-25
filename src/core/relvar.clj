@@ -8,7 +8,7 @@
   (doseq [c (:constraints (meta rvar))]
    (if (map? c)
      ; c is a hash map
-     (let [[attr ctype] (first c)
+     (let [[ctype attr] (first c)
            attr-set (if (keyword? attr) #{attr} attr)]
        (if (not= (count c) 1)
          (throw (IllegalArgumentException. (str "Only one element may be in a constraint hash map: " c)))
@@ -55,8 +55,8 @@
     (let [constraints (if (or (map? constraints) (fn? constraints)) 
                         [constraints] 
                         constraints)
-          references (remove nil? (map #(when (and (map? %) (= :foreign-key (first (vals %))))
-                                         (-> % keys first :referenced-relvar)) 
+          references (remove nil? (map #(when (and (map? %) (= :foreign-key (first (keys %))))
+                                         (-> % vals first :referenced-relvar)) 
                                        constraints))
           rvar (ref relation :meta {:constraints constraints, :referenced-by #{}})]
       
@@ -122,8 +122,8 @@
       
       ; constraints ok, take care of references
       (let [find-references (fn [cs] (set (remove nil? (map #(when (and (map? %) 
-                                                                   (= :foreign-key (first (vals %))))
-                                                          (-> % keys first :referenced-relvar)) 
+                                                                   (= :foreign-key (first (keys %))))
+                                                          (-> % vals first :referenced-relvar)) 
                                                        cs))))
             old-refs (find-references old-constraints)
             new-refs (find-references constraints)]

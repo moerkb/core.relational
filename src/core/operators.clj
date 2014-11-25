@@ -48,7 +48,7 @@
 
     Example:
       (project- r #{:sno})  ; relation r without :sno")
-  (add-to [relation extend-map]
+  (project+ [relation extend-map]
     "Extends the relation with the attributes specified in extend-map. In this,
     a key is a new attribute and the value the body of a single argument 
     function that retrieves the tuple and returns the new value. Every keyword
@@ -56,7 +56,7 @@
     The same effect can be achieved with project.
 
     Examples:
-      (extend r {:new-price '(* 1.05 :price t)})
+      (project+ r {:new-price '(* 1.05 :price t)})
       ; same as
       (project r {:a1 :a1, :a2 :a2, ..., :an :an, :new-price '(* 1.05 :price)})")
   (join [relation1 relation2] 
@@ -190,7 +190,7 @@
                                    (vec (map #(get t %) pos)))
                                  (.body relation))))))
   
-  (add-to [relation extend-map]
+  (project+ [relation extend-map]
     (rel (set (map (fn [t]
                         (apply merge t (map (fn [[k v]] {k (if (or (keyword? v) (fn? v)) 
                                                              (v t)
@@ -399,5 +399,5 @@
             (if (nil? summap)
                 new-rel
                 (let [[name fun] (first summap)]
-                  (recur (add-to new-rel {name (fun r)}) 
+                  (recur (project+ new-rel {name (fun r)}) 
                          (next summap)))))))))

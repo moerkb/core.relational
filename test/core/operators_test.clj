@@ -44,13 +44,13 @@
       (is (= (rel [:name] #{["Arthur"] ["Betty"]})
              (project- r #{:id}))))
     
-    (testing "Add-to (extend)"
+    (testing "Project+ (extend)"
       (is (= (rel [:id :name :status] 
                               #{[1 "Arthur" 20] [2 "Betty" 40]})
-             (add-to r {:status (relfn [t] (* 20 (:id t)))})))
+             (project+ r {:status (relfn [t] (* 20 (:id t)))})))
       (is (= (rel [:id :name :status]
                               #{[1 "Arthur" 50] [2 "Betty" 50]})
-             (add-to r {:status 50}))))
+             (project+ r {:status 50}))))
     
     (testing "Union"
       (let [r (rel [:id :name] #{[1 "Arthur"] [2 "Betty"]})

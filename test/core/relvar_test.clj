@@ -96,3 +96,12 @@
     (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Arthur"} {:id 2 :name "Beth"} {:id 42 :name "Dexter"}})
        (insert! rvar {:id 42 :name "Dexter"}))
     (is (thrown? IllegalArgumentException (insert! rvar {:id 0 :name "Homer"})))))
+
+(deftest add-constraint!-test
+  (let [rvar (relvar (rel #{{:id 1 :name "Arthur"}}))]
+    (is (= #rel #{{:id 1 :name "Arthur"} {:id 1 :name "Bethy"}}
+          (insert! rvar {:id 1 :name "Bethy"})))
+    (is (thrown? IllegalArgumentException (add-constraint! rvar {:id :unique})))
+    (is (= #rel #{{:id 1 :name "Arthur"} {:id 2 :name "Bethy"}}
+          (update! rvar #(= "Bethy" (:name %)) :id 2)))
+    (add-constraint! rvar {:id :unique})))

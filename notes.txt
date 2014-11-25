@@ -6,7 +6,6 @@ TASKS
 - saving relvars and databases
 - examples
 - ((relfn [rel] (reduce + (:weight rel)))p) != 91
-- add-constraint for relvar
 - unique and keys for several attributes
   - uniqueness of combined attributes
 - insert! - transient strucutres -> better performance?

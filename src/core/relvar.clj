@@ -48,9 +48,7 @@
 (defn relvar 
   "Creates a relation variable from the given relation (value). Constraints is 
   a collection of predicates, the relvar always has to satisfy when its value 
-  is changed. Each such predicate takes the relation value as its only argument.
-
-  "
+  is changed. Each such predicate takes the relation value as its only argument."
   ([relation]
     (ref relation :meta {:constraints nil, :referenced-by #{}}))
   ([relation constraints]
@@ -116,7 +114,11 @@
                         constraints)
           old-constraints (:constraints (meta rvar))]
       (alter-meta! rvar assoc :constraints constraints)
-      (check-constraints rvar)
+      (try 
+        (check-constraints rvar)
+        (catch Exception e 
+          (do (alter-meta! rvar assoc :constraints old-constraints)
+              (throw e))))
       
       ; constraints ok, take care of references
       (let [find-references (fn [cs] (set (remove nil? (map #(when (and (map? %) 
@@ -129,3 +131,11 @@
           (remove-reference! rvar r))
         (doseq [r (clj-set/difference new-refs old-refs)]
           (add-reference! rvar r))))))
+
+(defn add-constraint!
+  "Adds the constraint (see relvar) to a relvar. If the new constraint cannot
+  be satisfied by the relvar's value, an exception is thrown and the contraint
+  is not added."
+  [rvar new-constraint]
+  (let [old-cons (:constraints (meta rvar))]
+    (constraint-reset! rvar (conj old-cons new-constraint))))

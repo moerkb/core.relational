@@ -15,7 +15,11 @@
       (is (thrown? IllegalArgumentException (relvar (rel {:id 1 :name "Arthur"}) {:key :id})))
       (is (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Carl"} {:id 3 :name "Carl"}})
             (insert! rvar {:id 3 :name "Carl"})))
-      (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Dora"})))))
+      (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Dora"}))))
+    (let [rvar (relvar (rel {:a1 1 :a2 1})
+                       {:unique #{:a1 :a2}})]
+      (is (= (rel #{{:a1 1 :a2 1} {:a1 1 :a2 2}})
+             (insert! rvar {:a1 1 :a2 2})))))
   
   (testing "Assignment with primary keys"
     (let [rvar1 (relvar (rel {:id 1 :name "Arthur"}) {:primary-key :id})

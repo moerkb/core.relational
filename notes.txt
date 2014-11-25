@@ -1,13 +1,12 @@
 QUESTIONS
 - Dee/Dum-Names
+- primary key, unique -> candidate key?
 
 TASKS
 - group/wrap with clojure's group by
 - saving relvars and databases
 - examples
 - ((relfn [rel] (reduce + (:weight rel)))p) != 91
-- unique and keys for several attributes
-  - uniqueness of combined attributes
 - insert! - transient strucutres -> better performance?
 
 NOTES

@@ -13,7 +13,7 @@
        (if (not= (count c) 1)
          (throw (IllegalArgumentException. (str "Only one element may be in a constraint hash map: " c)))
          (case ctype
-           :unique (when-not (= (count @rvar) (count (project @rvar #{attr})))
+           :unique (when-not (= (count @rvar) (count (project @rvar attr-set)))
                      (throw (IllegalArgumentException. (str "The attribute " attr " is not unique in " @rvar))))
             
            :primary-key (when-not (= (count @rvar) (count (project @rvar attr-set)))

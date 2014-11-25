@@ -73,6 +73,11 @@
   [relation]
   (.body relation))
 
+(defn degree
+  "Returns the degree of a relation, i.e. the number of its attributes."
+  [relation]
+  (count (.head relation)))
+
 (defn sort-rel
   "If both relations have the same type, a relation equal two rel2 is returned
   with the same attribute order as rel1. If they have different type, it just

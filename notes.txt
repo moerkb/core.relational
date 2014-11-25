@@ -3,7 +3,6 @@ QUESTIONS
 
 TASKS
 - nested dosyncs?
-- degree of a relation
 - group/wrap with clojure's group by
 - rename add-to
 - saving relvars and databases

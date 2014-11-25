@@ -67,6 +67,12 @@
   (is (= 2 (count (rel #{{:name "Arthur"} {:name "Betty"}}))))
   (is (= 3 (count (rel [:id :name] #{[1 "Arthur"] [2 "Betty"] [3 "Carl"]})))))
 
+(deftest degree-test
+  (is (= 0 (degree dum)))
+  (is (= 0 (degree dee)))
+  (is (= 1 (degree #rel #{{:id 1} {:id 2}})))
+  (is (= 2 (degree #rel {:id 1, :name "Arthur"}))))
+
 (deftest order-test
   (testing "Order by one attribute" 
     (let [r (rel [:id :name] #{[1 "Arthur"] [4 "Betty"] [3 "Carl"]})]

@@ -199,7 +199,6 @@
   
   (join [relation1 relation2]
     (let [common (common-attr relation1 relation2)
-          div-r1 (diverging-attr relation1 relation2)
           div-r2 (diverging-attr relation2 relation1)
           new-head (vec (concat (.head relation1) div-r2))
           common-positions-r1 (map #(index-of (.head relation1) %) common)

@@ -295,13 +295,20 @@
       (if (nil? gmap)
         r
         (let [[alias attributes] (first gmap)
-              by-attrs (attr-complement r attributes)
-              group-fn (eval (list 'fn '[t] (apply merge (map (fn [a] {a (list a 't)}) 
-                                                           by-attrs))))]
-        (recur (rel (map (fn [[t gr]]
-                          (assoc t alias (rel (map (fn [gr-t]
-                                                     (apply dissoc gr-t by-attrs)) gr)))) 
-                     (group-by group-fn r)))
+              positions (map (fn [attr]
+                             (index-of (.head r) attr))
+                        attributes)
+              remaining (remove (fn [pos]
+                                  (some #(= pos %) positions))
+                          (range 0 (count (.head r))))
+              new-header (conj (vec (map #(get (.head r) %) remaining)) alias)
+              tuples-rel (apply merge-with union (map (fn [tuple]
+                                                        {(vec (map (fn [pos] (get tuple pos)) remaining))
+                                                         (rel (vec attributes) #{(vec (map #(get tuple %)
+                                                                                        positions))})})
+                                                   (.body r)))
+              new-body (set (map (fn [[k v]] (conj k v)) tuples-rel))]
+        (recur (rel new-header new-body)
                (next gmap))))))
   
   (ungroup [relation attributes]

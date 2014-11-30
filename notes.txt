@@ -1,9 +1,9 @@
 QUESTIONS
 - Dee/Dum-Names
 - primary key, unique -> candidate key?
+- group/wrap with clojure's group by
 
 TASKS
-- group/wrap with clojure's group by
 - saving relvars and databases
 - examples
 - ((relfn [rel] (reduce + (:weight rel)))p) != 91

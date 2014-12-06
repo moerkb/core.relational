@@ -2,11 +2,10 @@ QUESTIONS
 - Dee/Dum-Names
 - primary key, unique -> candidate key?
 - group/wrap with clojure's group by
+- "indistinct" function: ((relfn [rel] (reduce + (:weight rel)))p) != 91
 
 TASKS
 - saving relvars and databases
-- examples
-- ((relfn [rel] (reduce + (:weight rel)))p) != 91
 - insert! - transient strucutres -> better performance?
 
 NOTES

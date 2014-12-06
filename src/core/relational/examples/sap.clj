@@ -170,6 +170,16 @@ s
 
 ; === RELATION VARIABLES ===
 
+(def s-var (relvar s {:primary-key :sno}))
+(def p-var (relvar p {:primary-key :pno}))
+(def sp-var (relvar sp [{:primary-key #{:sno :pno}}
+                        {:foreign-key {:key :sno,
+                                       :referenced-relvar s-var,
+                                       :referenced-key :sno}}
+                        {:foreign-key {:key :pno,
+                                       :referenced-relvar p-var,
+                                       :referenced-key :pno}}]))
+
 ; SAP18
 ; create table SCopy (
 ;   sno    char(3) primary key,

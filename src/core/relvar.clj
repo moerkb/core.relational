@@ -13,11 +13,8 @@
        (if (not= (count c) 1)
          (throw (IllegalArgumentException. (str "Only one element may be in a constraint hash map: " c)))
          (case ctype
-           :unique (when-not (= (count @rvar) (count (project @rvar attr-set)))
-                     (throw (IllegalArgumentException. (str "The attribute " attr " is not unique in " @rvar))))
-            
-           :primary-key (when-not (= (count @rvar) (count (project @rvar attr-set)))
-                                     (throw (IllegalArgumentException. (str "This primary key already exists."))))
+           :key (when-not (= (count @rvar) (count (project @rvar attr-set)))
+                  (throw (IllegalArgumentException. (str "The key attribute " attr " is not unique in " @rvar))))
             
            :foreign-key (when-not (every? #(in? (project @(:referenced-relvar attr) #{(:referenced-key attr)})
                                                 {(:referenced-key attr) %})

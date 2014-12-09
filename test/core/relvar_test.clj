@@ -10,20 +10,19 @@
      (is (thrown? IllegalArgumentException (assign! rvar (union @rvar (rel {:id 1  :name "Dora"})))))
      (is (thrown? IllegalArgumentException (assign! rvar (union @rvar (rel {:id 42 :name "Dora"})))))))
   
-  (testing "Assignment with unique attribute"
-    (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Carl"}}) {:unique :id})]
-      (is (thrown? IllegalArgumentException (relvar (rel {:id 1 :name "Arthur"}) {:key :id})))
+  (testing "Assignment with candiate keys"
+    (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Carl"}}) {:key :id})]
+      (is (thrown? IllegalArgumentException (relvar (rel {:id 1 :name "Arthur"}) {:unique :id})))
       (is (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Carl"} {:id 3 :name "Carl"}})
             (insert! rvar {:id 3 :name "Carl"})))
       (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Dora"}))))
     (let [rvar (relvar (rel {:a1 1 :a2 1})
-                       {:unique #{:a1 :a2}})]
+                       {:key #{:a1 :a2}})]
       (is (= (rel #{{:a1 1 :a2 1} {:a1 1 :a2 2}})
-             (insert! rvar {:a1 1 :a2 2})))))
+             (insert! rvar {:a1 1 :a2 2}))))
   
-  (testing "Assignment with primary keys"
-    (let [rvar1 (relvar (rel {:id 1 :name "Arthur"}) {:primary-key :id})
-          rvar2 (relvar (rel {:id1 1 :id2 5 :name "Arthur"}) {:primary-key #{:id1 :id2}})]
+    (let [rvar1 (relvar (rel {:id 1 :name "Arthur"}) {:key :id})
+          rvar2 (relvar (rel {:id1 1 :id2 5 :name "Arthur"}) {:key #{:id1 :id2}})]
       (is (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Beth"}})
              (insert! rvar1 {:id 2 :name "Beth"})))
       (is (thrown? IllegalArgumentException (insert! rvar1 {:id 2 :name "Carl"})))
@@ -87,15 +86,15 @@
 
 (deftest constraint-reset!-test
   (let [rvar (relvar (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Arthur"}})
-                     {:unique :id})]
+                     {:key :id})]
     (is (thrown? IllegalArgumentException (insert! rvar {:id 2 :name "Beth"})))
     
     (constraint-reset! rvar nil)
     (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Arthur"} {:id 2 :name "Beth"}})
        (insert! rvar {:id 2 :name "Beth"}))
     
-    (is (thrown? IllegalArgumentException (constraint-reset! rvar {:unique :name}))) 
-    (is (thrown? IllegalArgumentException (constraint-reset! rvar {:unique :id}))) 
+    (is (thrown? IllegalArgumentException (constraint-reset! rvar {:key :name}))) 
+    (is (thrown? IllegalArgumentException (constraint-reset! rvar {:key :id}))) 
     (constraint-reset! rvar (fn [r] (every? #(> (:id %) 0) r)))
     (= (rel #{{:id 1 :name "Arthur"} {:id 2 :name "Arthur"} {:id 2 :name "Beth"} {:id 42 :name "Dexter"}})
        (insert! rvar {:id 42 :name "Dexter"}))
@@ -105,7 +104,7 @@
   (let [rvar (relvar (rel #{{:id 1 :name "Arthur"}}))]
     (is (= #rel #{{:id 1 :name "Arthur"} {:id 1 :name "Bethy"}}
           (insert! rvar {:id 1 :name "Bethy"})))
-    (is (thrown? IllegalArgumentException (add-constraint! rvar {:unique :id})))
+    (is (thrown? IllegalArgumentException (add-constraint! rvar {:key :id})))
     (is (= #rel #{{:id 1 :name "Arthur"} {:id 2 :name "Bethy"}}
           (update! rvar #(= "Bethy" (:name %)) :id 2)))
-    (add-constraint! rvar {:unique :id})))
+    (add-constraint! rvar {:key :id})))

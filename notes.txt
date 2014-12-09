@@ -1,5 +1,4 @@
 QUESTIONS
-- primary key, unique -> candidate key?
 - group/wrap with clojure's group by
 
 TASKS

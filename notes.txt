@@ -1,9 +1,9 @@
 QUESTIONS
-- group/wrap with clojure's group by
+- group/wrap with clojure's group by - makes no sense
+- insert! - transient structures -> better performance?
 
 TASKS
 - saving relvars and databases
-- insert! - transient strucutres -> better performance?
 
 NOTES
 - TABLE_DEE = true  (empty tuple)

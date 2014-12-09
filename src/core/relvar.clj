@@ -136,3 +136,34 @@
   [rvar new-constraint]
   (let [old-cons (:constraints (meta rvar))]
     (constraint-reset! rvar (conj old-cons new-constraint))))
+
+(defn save-relvar
+  "Saves the relvar in the specified file."
+  [relv file]
+  (spit file (str "#relvar #rel " (prn-str (set @relv)))))
+
+(defn load-relvar
+  "Loads a relvar from the specified file."
+  [file]
+  (edn/read-string {:readers {'relvar core.relational/relvar
+                              'rel    core.relational/rel}} 
+                   (slurp file)))
+
+(defn save-db
+  "Saves the database in the specified file. A database is an arbitrary Clojure
+  collection, preferrably a hash map."
+  [db file]
+  (spit file (prn-str (if (map? db)
+                        (apply merge (map (fn [[k v]]
+                                            {k (list 'relvar (list 'rel (set @v)))})
+                                       db))
+                        (vec (map (fn [rv] 
+                                    (list 'relvar (list 'rel (set @rv))))
+                               db))))))
+
+(defn load-db
+  "Loads a database from the specified file."
+  [file]
+  (eval (edn/read-string {:readers {'relvar core.relational/relvar
+                                    'rel    core.relational/rel}} 
+          (slurp file))))

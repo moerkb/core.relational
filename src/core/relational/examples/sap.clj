@@ -153,11 +153,11 @@ s
 
 ; SAP15
 ; select sum(qty) as "Number of part P2" from sp where pno = 'P2'
-(summarize (restrict sp #(= (% :pno) "P2")) nil {:Qty #(reduce + (:qty %))})
+(summarize (restrict sp #(= (% :pno) "P2")) nil {:Qty #(reduce + (map :qty r))})
 
 ; SAP16
 ; select pno, sum(qty) as Quantity from sp group by pno order by pno
-(order (summarize sp [:pno] {:quantity (fn [r] (reduce + (:qty r)))})
+(order (summarize sp [:pno] {:quantity (fn [r] (reduce + (map :qty r)))})
   {:pno :asc})
 
 ; SAP17
@@ -170,16 +170,6 @@ s
 
 ; === RELATION VARIABLES ===
 
-(def s-var (relvar s {:primary-key :sno}))
-(def p-var (relvar p {:primary-key :pno}))
-(def sp-var (relvar sp [{:primary-key #{:sno :pno}}
-                        {:foreign-key {:key :sno,
-                                       :referenced-relvar s-var,
-                                       :referenced-key :sno}}
-                        {:foreign-key {:key :pno,
-                                       :referenced-relvar p-var,
-                                       :referenced-key :pno}}]))
-
 ; SAP18
 ; create table SCopy (
 ;   sno    char(3) primary key,
@@ -187,14 +177,22 @@ s
 ;   status integer,
 ;   city   char(15))
 
+(def scopy (relvar s {:primary-key :sno}))
+
 ; SAP19
 ; alter table SCopy add column postcode char(8)
+
+; not possible: altering the type of a relvar is not allowed
 
 ; SAP20
 ; create index postcode_ix on SCopy(postcode)
 
+; no indexes in core.relational so foar
+
 ; SAP21
 ; drop table SCopy
+
+; not possible in Clojure
 
 ; SAP22
 ; create table SCopy  as select * from s;
@@ -206,24 +204,55 @@ s
 ;
 ; select * from SCopy
 
+; copy exists already
+(def pcopy (relvar p {:primary-key :pno}))
+(def spcopy (relvar sp [{:primary-key #{:sno :pno}}
+                        {:foreign-key {:key :sno,
+                                       :referenced-relvar scopy,
+                                       :referenced-key :sno}}
+                        {:foreign-key {:key :pno,
+                                       :referenced-relvar pcopy,
+                                       :referenced-key :pno}}]))
+
+(insert! scopy {:sno "S6", :sname "Black", :status 15, :scity "Rome"})
+(print-relation @scopy)
+
 ; SAP23
 ; select pno, sum(qty) into Quantity from sp by pno
 
+; ?
+
 ; SAP24
 ; update SCopy set status = 50 where sno = 'S2'
+
+(update! scopy (relfn [t] (= (:sno t) "S2")) :status 50)
 
 ; SAP25
 ; update SPCopy set qty = 10 where sno in (select sno from SCopy where
 ;                                            city = 'London')
 
+(update! spcopy
+  (relfn [_] (restrict @spcopy (relfn [t1] (in? 
+                                   (-> @scopy 
+                                      (restrict (relfn [t2] (= "London" (:scity t2))))
+                                      (project #{:sno}))
+                                   {:sno (:sno t1)}))))
+  :qty 10)
+
 ; SAP26
 ; delete from SCopy where sno = 'S4'
 
+(delete! scopy (relfn [t] (= "S4" (:sno t))))
+; not possible due to integrity from sp
+
 ; SAP27
 ; delete from SPCopy where qty >= 300
+(delete! spcopy (relfn [t] (>= (:qty t) 300)))
 
 ; SAP28
 ; drop table SPCopy;
 ; drop table SCopy;
 ; drop table PCopy;
 ; drop table Quantity;
+
+; not possible in Clojure

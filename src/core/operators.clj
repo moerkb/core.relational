@@ -18,14 +18,13 @@
 
     Example:
       (rename* r #\"(.+)\" \"prefix-$1\"")
-  (restrict [relation predicate-list] 
-    "Returns a relation with only the tuples that satisfy the predicate-list.
-    That is a predicate function, but not defined as a function, but a list
-    representing the body of that function. Every keyword that appears as an
-    attribute of the relation will be interpreted as such.
+  (restrict [relation predicate?] 
+    "Returns a relation with only the tuples that satisfy the predicate pred?.
+    That is a usual function, but fn shall be replaced with relfn, so that 
+    optimization can be done.
 
     Examples:
-      (restrict r '(= :sno \"S12\"))")
+      (restrict r (relfn [t] (= (:sno t) \"S12\")))")
   (project [relation project-map] 
     "Returns the relation with only the attributes specified in pmap. That is a
     hash map where the key is the final name and the value is what shall be
@@ -41,7 +40,7 @@
     Examples:
       (project r {:sno :sno, :supplier-city :city})
       (project r #{:sno :city})
-      (project r {:sno :sno, :new-status '(* 2 :status)})")
+      (project r {:sno :sno, :new-status (relfn [t] (* 2 (:status t)))})")
   (project- [relation attributes]
     "Projects the relation with all original attributes, but the one specified.
     Think of it as \"remove\".
@@ -50,15 +49,14 @@
       (project- r #{:sno})  ; relation r without :sno")
   (project+ [relation extend-map]
     "Extends the relation with the attributes specified in extend-map. In this,
-    a key is a new attribute and the value the body of a single argument 
-    function that retrieves the tuple and returns the new value. Every keyword
-    that appears as an attribute in the relation will be interpreted as such. 
-    The same effect can be achieved with project.
+    a key is a new attribute and the value a tuple function. The same effect can
+    be achieved with project.
 
     Examples:
-      (project+ r {:new-price '(* 1.05 :price t)})
+      (project+ r {:new-price (relfn [t] (* 1.05 (:price t)))})
       ; same as
-      (project r {:a1 :a1, :a2 :a2, ..., :an :an, :new-price '(* 1.05 :price)})")
+      (project r {:a1 :a1, :a2 :a2, ..., :an :an, 
+                  :new-price (relfn [t] (* 1.05 (:price t))")
   (join [relation1 relation2] 
     "Produces the natural join of both relations.")
   (compose [relation1 relation2]
@@ -112,7 +110,7 @@
 
     In SQL you would say \"GROUP BY BillId\".")
   (ungroup [relation attributes]
-    "Counter part to group: extracts the attributes (that must be relations) to
+    "Inverts group: extracts the attributes (that must be relations) to
     be standard rows again (like you have never done a group).
 
     Example:
@@ -137,11 +135,12 @@
     value appears in the resulting relation under the key.
 
     Examples:
-      (summarize r #{:sno} {:pcount #(count %)})
+      (summarize r #{:sno} {:pcount (relfn [r] (count r))})
       ; like in SQL: \"select sno, count(*) as pcount from r group by sno;\"
 
-      (summarize r #{:pno} {:psum #(reduce + (:price %))})
-      ; like in SQL: \"select pno, sum(price) as psum from r group by pno;\""))
+      (summarize r #{:pno} {:psum (relfn [r] (reduce + (:price r)))})
+      ; like in SQL: \"select pno, sum(distinct price) as psum from r 
+                       group by pno;\""))
 
 
 ; implementation for Relation (clojure data structures, row-oriented)

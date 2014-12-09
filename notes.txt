@@ -3,7 +3,6 @@ QUESTIONS
 - insert! - transient structures -> better performance?
 
 TASKS
-- saving relvars and databases
 
 NOTES
 - TABLE_DEE = true  (empty tuple)
